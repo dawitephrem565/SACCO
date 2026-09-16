@@ -124,13 +124,6 @@ SACCO/
 └─ scripts/demo/             # Demo data + loan workflow
 ```
 
-## Notes for collaborators
-
-- Do **not** commit `.env`  
-- Local analysis docs under `NewDocs/` are gitignored on purpose  
-- Products and rates in seed config are **placeholders** until FETAN provides real numbers  
-- Still blocked / not done: dormant-member definition, “loan failed” / share “promised” labels, SMS, external payments, production hardening  
-
 ## License
 
 Upstream Fineract / Mifos components keep their original licenses (Apache / MPL as applicable).
