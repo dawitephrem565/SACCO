@@ -1,81 +1,136 @@
-# MifosProd — Local-Runnable Mifos / Apache Fineract Stack
+# SACCO — FETAN on Apache Fineract
 
-A clean, local-runnable copy of a working **Apache Fineract + Mifos Web App** deployment.
-Mirrors the production EC2 stack, retargeted to `localhost`. **No production secrets or
-production/customer data are included.**
+Local development stack for **FETAN SACCO**: stock **Apache Fineract** + customized **Mifos Web App**, with FETAN screens, seed scripts, and demo users.
 
-## Stack
+No production secrets or customer data are included.
 
-| Layer | Component | Image (default) |
-|---|---|---|
-| Core banking backend | Apache Fineract | `apache/fineract:latest` |
-| Frontend | Mifos Web App (Angular) | `openmf/web-app:dev` |
-| Database | PostgreSQL 18.3 | `postgres:18.3` |
-| Reverse proxy | nginx | `nginx:1.27-alpine` |
+## What this is
 
-Single entrypoint via nginx → no CORS / mixed-content issues. The database is never exposed to the host.
+| Layer | What runs |
+|-------|-----------|
+| Backend | Apache Fineract (`apache/fineract:latest`) |
+| Frontend | Local Angular web app (`dantel/web-app:local`, built from `frontend/`) |
+| Database | PostgreSQL 18.3 (internal only) |
+| Proxy | nginx → `http://localhost:8080` |
 
+FETAN work lives mainly in:
+
+- `frontend/src/app/fetan/` — dashboard, contacts, add member, loan queues, receivable  
+- `scripts/seed/` — offices, products, roles, reports, contacts, staff/tellers, maker-checker  
+- `scripts/demo/` — sample members and loan workflow demo  
+
+## Quick start (Windows)
+
+```powershell
+git clone https://github.com/dawitephrem565/SACCO.git
+cd SACCO
+copy .env.example .env
+# Edit .env — replace every CHANGE_ME_LOCAL value
+
+docker compose -f docker-compose.local.yml up -d --build
 ```
-Browser ──http://localhost:8080──▶ nginx
-                                    ├─ /                    ─▶ web-app (SPA)
-                                    └─ /fineract-provider/  ─▶ fineract (HTTPS, internal)
-                                                                 └─▶ postgres (internal only)
+
+First boot: wait until Fineract is healthy (often a few minutes), then:
+
+```powershell
+# Seed FETAN config (roles, products, reports, …)
+$env:SEED_USER_PASSWORD = "FetanDev#2026x"
+node scripts/seed/seed.mjs
+
+# Optional demo members / savings / shares
+node scripts/demo/demo-data.mjs
 ```
 
-## Quick start
+Open **http://localhost:8080** and hard-refresh (`Ctrl+Shift+R`).
 
 ### Linux / macOS
+
 ```bash
-git clone https://github.com/firaolteshale21/MifosProd.git
-cd MifosProd
+git clone https://github.com/dawitephrem565/SACCO.git
+cd SACCO
 cp .env.example .env
-chmod +x scripts/*.sh
-./scripts/local-up.sh          # creates .env, generates local passwords, starts the stack
-./scripts/local-healthcheck.sh # first boot migrates the DB (~3-6 min) — re-run until PASS
-```
+# Edit .env — replace CHANGE_ME_LOCAL values
 
-### Windows (PowerShell)
-```powershell
-git clone https://github.com/firaolteshale21/MifosProd.git
-cd MifosProd
-copy .env.example .env
 docker compose -f docker-compose.local.yml up -d --build
-docker compose -f docker-compose.local.yml ps
+
+export SEED_USER_PASSWORD='FetanDev#2026x'
+node scripts/seed/seed.mjs
+node scripts/demo/demo-data.mjs   # optional
 ```
-> On Windows, edit `.env` and replace the `CHANGE_ME_LOCAL` values with your own strings
-> (the auto-generation step is in the bash script). Full details in [`docs/LOCAL_SETUP.md`](docs/LOCAL_SETUP.md).
 
-## URLs (local)
+## Logins (local only)
 
-| What | URL |
-|---|---|
-| Frontend | http://localhost:8080 |
-| Backend API base | http://localhost:8080/fineract-provider/api/v1 |
-| Health check | http://localhost:8080/fineract-provider/actuator/health |
+| User | Password | Role |
+|------|----------|------|
+| `mifos` | `password` | Super admin |
+| `fetan.employee` | `FetanDev#2026x` | Front office (add member, submit loans) |
+| `fetan.maker` | `FetanDev#2026x` | Loan committee — approve / disburse |
+| `fetan.checker` | `FetanDev#2026x` | Confirms maker actions |
+| `fetan.manager` | `FetanDev#2026x` | Oversight / receivable |
+| `fetan.teller` | `FetanDev#2026x` | Cash desk |
+| `fetan.auditor` | `FetanDev#2026x` | Read-only |
 
-**Default login (change immediately):** tenant `default`, user `mifos`, password `password`.
+Tenant: **`default`**.  
+Test users are created only when `SEED_USER_PASSWORD` is set.
+
+## FETAN features (current)
+
+- Executive dashboard (demographics / savings / shares / loans)  
+- Contact directory (view + manage via offices)  
+- Add member stepped form (personal + deposit + documents)  
+- Loan requests / approval / disbursement queues  
+- Two-person control on approve & disburse (maker → checker)  
+- Reject loan with required reason  
+- Loan receivable (collected vs uncollected)  
+- Role-aware sidebar menus  
+- Staff / teller seed data  
+
+## Useful commands
+
+```powershell
+# Status
+docker compose -f docker-compose.local.yml ps
+
+# Logs
+docker compose -f docker-compose.local.yml logs -f fineract
+
+# Stop
+docker compose -f docker-compose.local.yml down
+
+# Prove loan chain via API
+node scripts/demo/loan-workflow.mjs
+node scripts/demo/loan-workflow.mjs --populate-queues
+```
+
+After frontend changes, rebuild the webapp image (or build Angular locally and copy into the container). RBAC is enabled in `docker-compose.local.yml` (`MIFOS_PRODUCTION_MODE_ENABLE_RBAC=true`).
 
 ## Requirements
-- Docker Desktop / Docker Engine with the Compose plugin
-- ~4 GB free RAM and ~5 GB free disk (Fineract JVM + Postgres + images)
 
-## Documentation
-- [`docs/LOCAL_SETUP.md`](docs/LOCAL_SETUP.md) — Windows + Linux/Mac setup
-- [`docs/HANDOFF_REPORT.md`](docs/HANDOFF_REPORT.md) — what's in this repo, provenance, verification
-- [`docs/PRODUCTION_STACK_SNAPSHOT.md`](docs/PRODUCTION_STACK_SNAPSHOT.md) — the production deployment it was captured from
-- [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md) — start/stop/logs/rebuild/backup/troubleshooting
-- [`docs/SECURITY_NOTES.md`](docs/SECURITY_NOTES.md) — secrets handling, HTTPS, DB exposure
+- Docker Desktop (Compose plugin)  
+- ~4 GB free RAM, ~5 GB disk  
+- Node.js 20+ (for seed / demo scripts)
 
-## Repository layout
+## Repo layout
+
 ```
-MifosProd/
-├─ docker-compose.local.yml   # canonical local stack
-├─ docker-compose.yml         # same stack (default; local-safe)
-├─ .env.example               # config template (copy to .env)
-├─ nginx/local.conf           # reverse proxy
-├─ database/init/             # DB bootstrap (creates empty DBs + user)
-├─ scripts/                   # local-up/down/reset/logs/healthcheck, backup/restore
-├─ backend/                   # Apache Fineract source (reference / optional build)
-├─ frontend/                  # Mifos Web App source (reference / optional build)
-└─ docs/                      # documentation
+SACCO/
+├─ docker-compose.local.yml
+├─ .env.example
+├─ nginx/
+├─ database/init/
+├─ frontend/                 # Web app (includes app/fetan/)
+├─ backend/                  # Fineract source (reference / optional build)
+├─ scripts/seed/             # Tenant configuration
+└─ scripts/demo/             # Demo data + loan workflow
 ```
+
+## Notes for collaborators
+
+- Do **not** commit `.env`  
+- Local analysis docs under `NewDocs/` are gitignored on purpose  
+- Products and rates in seed config are **placeholders** until FETAN provides real numbers  
+- Still blocked / not done: dormant-member definition, “loan failed” / share “promised” labels, SMS, external payments, production hardening  
+
+## License
+
+Upstream Fineract / Mifos components keep their original licenses (Apache / MPL as applicable).
