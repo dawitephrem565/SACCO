@@ -1,0 +1,391 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div
+  [ngClass]="{
+    'sidebar-full': !sidenavCollapsed,
+    'sidebar-compact': sidenavCollapsed
+  }"
+>
+  <div class="navigation-panel layout-column">
+    <!-- TODO: Allow customization by organization -->
+    <div class="app-brand" [routerLink]="['/fetan/dashboard']">
+      <img src="assets/images/Dantel_logo.jpg" alt="app-logo" class="app-logo" />
+      <span #logo class="app-logo-text text-muted">{{ 'APP_NAME' | translate }}</span>
+    </div>
+
+    <div class="app-user">
+      <div class="app-user-photo">
+        <!-- TODO: Decision to be taken on providing this feature -->
+        <img src="assets/images/user_placeholder.png" alt="app-user-photo" />
+      </div>
+      <span class="app-user-name mb-05"> {{ tenantIdentifier }} / {{ username }} </span>
+      <div #userPanel class="app-user-controls">
+        <button
+          class="xs-button"
+          mat-icon-button
+          matTooltip="{{ 'tooltips.Settings' | translate }}"
+          [routerLink]="['/settings']"
+        >
+          <fa-icon icon="cog"></fa-icon>
+        </button>
+        <button class="xs-button" mat-icon-button matTooltip="{{ 'tooltips.Sign Out' | translate }}" (click)="logout()">
+          <fa-icon icon="sign-out-alt"></fa-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="app-sidenav">
+      <div #frequentlyAccessed>
+        <div class="mt-1 mb-1 nav-item-sep">
+          <mat-divider></mat-divider>
+          <span class="text-muted icon-menu-title">{{ 'labels.menus.Frequently Accessed' | translate }}</span>
+        </div>
+      </div>
+      <div class="icon-menu">
+        @for (activity of mappedActivities; track activity) {
+          <div class="icon-menu-item">
+            <button
+              mat-raised-button
+              [matTooltipPosition]="tooltipPosition"
+              [matTooltip]="activity.toolTip"
+              [routerLink]="[activity.path]"
+            >
+              <fa-icon [icon]="activity.icon" size="lg"></fa-icon>
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="nav-item-sep">
+        <mat-divider></mat-divider>
+        <span class="text-muted">{{ 'labels.menus.Main Items' | translate }}</span>
+      </div>
+
+      <mat-nav-list>
+        <mat-list-item
+          [routerLink]="['/fetan/dashboard']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Dashboard' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="['REPORTING_SUPER_USER', 'CREATE_CLIENT']"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="chart-pie" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine #dashboard>{{ 'labels.menus.Dashboard' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
+          [routerLink]="['/fetan/contacts']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Contact Directory' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="'READ_OFFICE'"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="address-book" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Contact Directory' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
+          [routerLink]="['/organization/offices']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Manage Contacts' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="'CREATE_fetan_contact_directory'"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="building" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Manage Contacts' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
+          [routerLink]="['/fetan/members/create']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Add Member' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="'CREATE_CLIENT'"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="user-plus" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Add Member' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
+          [routerLink]="['/fetan/loans/requests']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Loan Requests' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="'CREATE_LOAN'"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="file-alt" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Loan Requests' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
+          [routerLink]="['/fetan/loans/approval-queue']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Approval Queue' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="'APPROVE_LOAN'"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="check-circle" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Approval Queue' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
+          [routerLink]="['/fetan/loans/disbursement-queue']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Disbursement Queue' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="'DISBURSE_LOAN'"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="sack-dollar" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Disbursement Queue' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
+          [routerLink]="['/fetan/loans/receivable']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Loan Receivable' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="'REPORTING_SUPER_USER'"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="money-bill-wave" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Loan Receivable' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
+          [routerLink]="['/checker-inbox-and-tasks/checker-inbox']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Checker Inbox and Tasks' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="['CHECKER_SUPER_USER', 'READ_MAKERCHECKER', 'APPROVE_LOAN', 'APPROVE_LOAN_CHECKER']"
+        >
+          <mat-icon matListIcon>
+            <i class="fa fa-check"></i>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Checker Inbox and Tasks' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
+          (click)="showKeyboardShortcuts()"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Keyboard Shortcuts' | translate }}"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="keyboard" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Keyboard Shortcuts' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item [matTooltipPosition]="tooltipPosition" matTooltip="{{ 'tooltips.Help' | translate }}">
+          <mat-icon matListIcon (click)="help()">
+            <fa-icon icon="question-circle" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Help' | translate }}</a>
+        </mat-list-item>
+      </mat-nav-list>
+    </div>
+  </div>
+</div>
+
+<ng-template #templateLogo let-popover="popover">
+  <h2>{{ 'labels.text.Home' | translate }}</h2>
+  <p class="mw300">{{ 'labels.text.Welcome page logo from anywhere' | translate }}</p>
+  <div class="layout-row align-end gap-2px responsive-column">
+    <button mat-raised-button color="warn" (click)="popover.close(); configurationWizardService.closeConfigWizard()">
+      {{ 'labels.buttons.Close' | translate }}
+    </button>
+    <button mat-raised-button color="primary" (click)="popover.close(); previousStep()">
+      {{ 'labels.buttons.Back' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateUserPanel, userPanel, 'bottom', true)"
+    >
+      {{ 'labels.buttons.Next' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #templateUserPanel let-popover="popover">
+  <h2>{{ 'labels.menus.User Panel' | translate }}</h2>
+  <p class="mw300">{{ 'labels.text.Section Buttons' | translate }}</p>
+  <div class="layout-row align-end gap-2px responsive-column">
+    <button mat-raised-button color="warn" (click)="popover.close(); configurationWizardService.closeConfigWizard()">
+      {{ 'labels.buttons.Close' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateLogo, logo, 'bottom', true)"
+    >
+      {{ 'labels.buttons.Back' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateFrequentlyAccessed, frequentlyAccessed, 'bottom', true)"
+    >
+      {{ 'labels.buttons.Next' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #templateFrequentlyAccessed let-popover="popover">
+  <h2>{{ 'labels.menus.Frequently Accessed' | translate }}</h2>
+  <p class="mw300">{{ 'labels.text.Shortcut to the frequently accessed components' | translate }}</p>
+  <div class="layout-row align-end gap-2px responsive-column">
+    <button mat-raised-button color="warn" (click)="popover.close(); configurationWizardService.closeConfigWizard()">
+      {{ 'labels.buttons.Close' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateUserPanel, userPanel, 'bottom', true)"
+    >
+      {{ 'labels.buttons.Back' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateDashboard, dashboard, 'bottom', true)"
+    >
+      {{ 'labels.buttons.Next' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #templateDashboard let-popover="popover">
+  <h2>{{ 'labels.menus.Dashboard' | translate }}</h2>
+  <p class="mw300">{{ 'labels.text.User Dashboard Component' | translate }}</p>
+  <div class="layout-row align-end gap-2px responsive-column">
+    <button mat-raised-button color="warn" (click)="popover.close(); configurationWizardService.closeConfigWizard()">
+      {{ 'labels.buttons.Close' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateFrequentlyAccessed, frequentlyAccessed, 'bottom', true)"
+    >
+      {{ 'labels.buttons.Back' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateNavigation, navigation, 'bottom', true)"
+    >
+      {{ 'labels.buttons.Next' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #templateNavigation let-popover="popover">
+  <h2>{{ 'labels.menus.Navigation' | translate }}</h2>
+  <p class="mw300">{{ 'labels.text.User Entity navigation screen' | translate }}</p>
+  <div class="layout-row align-end gap-2px responsive-column">
+    <button mat-raised-button color="warn" (click)="popover.close(); configurationWizardService.closeConfigWizard()">
+      {{ 'labels.buttons.Close' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateDashboard, dashboard, 'bottom', true)"
+    >
+      {{ 'labels.buttons.Back' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateFrequentPostings, frequentPostings, 'top', true)"
+    >
+      {{ 'labels.buttons.Next' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #templateFrequentPostings let-popover="popover">
+  <h2>{{ 'labels.menus.Frequent Postings' | translate }}</h2>
+  <p class="mw300">{{ 'labels.text.Shortcut accounting rules' | translate }}</p>
+  <div class="layout-row align-end gap-2px responsive-column">
+    <button mat-raised-button color="warn" (click)="popover.close(); configurationWizardService.closeConfigWizard()">
+      {{ 'labels.buttons.Close' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateNavigation, navigation, 'bottom', true)"
+    >
+      {{ 'labels.buttons.Back' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateCreateJournalEntry, createJournalEntry, 'top', true)"
+    >
+      {{ 'labels.buttons.Next' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #templateCreateJournalEntry let-popover="popover">
+  <h2>{{ 'labels.menus.Create Journal Entry' | translate }}</h2>
+  <p class="mw300">{{ 'labels.text.Shortcut entry screen' | translate }}</p>
+  <div class="layout-row align-end gap-2px responsive-column">
+    <button mat-raised-button color="warn" (click)="popover.close(); configurationWizardService.closeConfigWizard()">
+      {{ 'labels.buttons.Close' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateFrequentPostings, frequentPostings, 'top', true)"
+    >
+      {{ 'labels.buttons.Back' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateChartOfAccounts, chartOfAccounts, 'top', true)"
+    >
+      {{ 'labels.buttons.Next' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #templateChartOfAccounts let-popover="popover">
+  <h2>{{ 'labels.menus.Chart of Accounts' | translate }}</h2>
+  <p class="mw300">{{ 'labels.text.Shortcut accounts screen' | translate }}</p>
+  <div class="layout-row align-end gap-2px responsive-column">
+    <button mat-raised-button color="warn" (click)="popover.close(); configurationWizardService.closeConfigWizard()">
+      {{ 'labels.buttons.Close' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="popover.close(); showPopover(templateCreateJournalEntry, createJournalEntry, 'top', true)"
+    >
+      {{ 'labels.buttons.Back' | translate }}
+    </button>
+    <button mat-raised-button color="primary" (click)="popover.close(); nextStep()">
+      {{ 'labels.buttons.Next' | translate }}
+    </button>
+  </div>
+</ng-template>

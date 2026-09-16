@@ -1,0 +1,46 @@
+{
+  "_comment": [
+    "FETAN's internal Contact Information Directory.",
+    "",
+    "Requirement source: FETAN SRS §2 —",
+    "  'Centralized internal directory for streamlined communication across",
+    "   institutional departments. Structured contact details and departmental",
+    "   routing for Customer Service, Finance, Loan Department, and Management.'",
+    "",
+    "Implemented as a Fineract datatable rather than a new database table, which means",
+    "no backend code and no schema migration. A datatable is a user-defined table that",
+    "Fineract exposes over the REST API automatically and renders in the stock admin UI,",
+    "so FETAN can add and edit contacts themselves without a developer.",
+    "",
+    "Attached to m_office because a multi-branch SACCO needs a Finance contact per",
+    "branch, not one for the whole organisation. multiRow allows several contacts per",
+    "branch. Head Office rows act as the organisation-wide entries.",
+    "",
+    "Department is a dropdown backed by a code, so the four departments stay",
+    "consistent instead of being retyped and misspelled per branch."
+  ],
+
+  "departmentCode": {
+    "name": "FETANDepartment",
+    "values": [
+      "Customer Service",
+      "Finance",
+      "Loan Department",
+      "Management"
+    ]
+  },
+
+  "datatable": {
+    "datatableName": "fetan_contact_directory",
+    "apptableName": "m_office",
+    "multiRow": true,
+    "columns": [
+      { "name": "Department", "type": "Dropdown", "code": "FETANDepartment", "mandatory": true },
+      { "name": "Contact Name", "type": "String", "length": 100, "mandatory": true },
+      { "name": "Job Title", "type": "String", "length": 100, "mandatory": false },
+      { "name": "Phone", "type": "String", "length": 30, "mandatory": false },
+      { "name": "Email", "type": "String", "length": 120, "mandatory": false },
+      { "name": "Notes", "type": "Text", "mandatory": false }
+    ]
+  }
+}

@@ -1,0 +1,210 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+/** Angular Imports */
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, AfterViewInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { UntypedFormGroup, UntypedFormBuilder, Validators, UntypedFormControl } from '@angular/forms';
+
+/** Custom Services */
+import { ClientsService } from 'app/clients/clients.service';
+import { Dates } from 'app/core/utils/dates';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatAutocompleteTrigger, MatAutocomplete } from '@angular/material/autocomplete';
+import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { LoanAccountActionsBaseComponent } from '../loan-account-actions-base.component';
+
+/**
+ * Create Guarantor Action
+ */
+@Component({
+  selector: 'mifosx-create-guarantor',
+  templateUrl: './create-guarantor.component.html',
+  styleUrls: ['./create-guarantor.component.scss'],
+  imports: [
+    ...STANDALONE_SHARED_IMPORTS,
+    MatCheckbox,
+    MatAutocompleteTrigger,
+    MatAutocomplete
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class CreateGuarantorComponent extends LoanAccountActionsBaseComponent implements OnInit, AfterViewInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private formBuilder = inject(UntypedFormBuilder);
+  private dateUtils = inject(Dates);
+  private clientsService = inject(ClientsService);
+
+  /** New Guarantor Form */
+  newGuarantorForm: UntypedFormGroup;
+  /** Relation Types */
+  relationTypes: any;
+  /** Show Client Details Form */
+  showClientDetailsForm = false;
+  /** Minimum date allowed. */
+  minDate = new Date(1900, 0, 1);
+  /** Maximum date allowed. */
+  maxDate = new Date();
+  /** Client data. */
+  clientsData: any = [];
+  /** Account Options */
+  accountOptions: any = [];
+
+  /**
+   * @param {FormBuilder} formBuilder Form Builder.
+   * @param {LoansService} loanService Loan Service.
+   * @param {ActivatedRoute} route Activated Route.
+   * @param {Router} router Router for navigation.
+   * @param {SettingsService} settingsService Settings Service
+   */
+  constructor() {
+    super();
+  }
+
+  ngOnInit() {
+    this.maxDate = this.settingsService.businessDate;
+    this.createNewGuarantorForm();
+    this.setNewGuarantorDetailsForm();
+    this.buildDependencies();
+  }
+
+  /** Create Guarantor Details Form */
+  createNewGuarantorForm() {
+    this.newGuarantorForm = this.formBuilder.group({
+      existingClient: [''],
+      name: [
+        '',
+        Validators.required
+      ],
+      clientRelationshipTypeId: [''],
+      savingsId: [''],
+      amount: ['']
+    });
+  }
+
+  /** Sets Guarantor Details Form */
+  setNewGuarantorDetailsForm() {
+    this.relationTypes = this.dataObject.allowedClientRelationshipTypes;
+    this.newGuarantorForm.patchValue({
+      existingClient: true
+    });
+  }
+
+  /**
+   * Add guarantor detail fields to the UI.
+   */
+  buildDependencies() {
+    this.newGuarantorForm
+      .get('existingClient')
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.showClientDetailsForm = !this.showClientDetailsForm;
+        if (this.showClientDetailsForm) {
+          this.newGuarantorForm.addControl('firstname', new UntypedFormControl(''));
+          this.newGuarantorForm.addControl('lastname', new UntypedFormControl(''));
+          this.newGuarantorForm.addControl('dob', new UntypedFormControl(''));
+          this.newGuarantorForm.addControl('addressLine1', new UntypedFormControl(''));
+          this.newGuarantorForm.addControl('addressLine2', new UntypedFormControl(''));
+          this.newGuarantorForm.addControl('city', new UntypedFormControl(''));
+          this.newGuarantorForm.addControl('zip', new UntypedFormControl(''));
+          this.newGuarantorForm.addControl('mobileNumber', new UntypedFormControl(''));
+          this.newGuarantorForm.addControl('housePhoneNumber', new UntypedFormControl(''));
+          this.newGuarantorForm.removeControl('name');
+          this.newGuarantorForm.removeControl('savingsId');
+          this.newGuarantorForm.removeControl('amount');
+        } else {
+          this.newGuarantorForm.addControl('name', new UntypedFormControl(''));
+          this.newGuarantorForm.addControl('savingsId', new UntypedFormControl(''));
+          this.newGuarantorForm.addControl('amount', new UntypedFormControl(''));
+          this.newGuarantorForm.removeControl('firstname');
+          this.newGuarantorForm.removeControl('lastname');
+          this.newGuarantorForm.removeControl('dob');
+          this.newGuarantorForm.removeControl('addressLine1');
+          this.newGuarantorForm.removeControl('addressLine2');
+          this.newGuarantorForm.removeControl('city');
+          this.newGuarantorForm.removeControl('zip');
+          this.newGuarantorForm.removeControl('mobileNumber');
+          this.newGuarantorForm.removeControl('housePhoneNumber');
+        }
+      });
+  }
+
+  /**
+   * Subscribes to Clients search filter:
+   */
+  ngAfterViewInit() {
+    if (this.newGuarantorForm.value.existingClient) {
+      this.newGuarantorForm
+        .get('name')
+        .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((value: string) => {
+          if (value.length >= 2) {
+            this.clientsService.getFilteredClients('displayName', 'ASC', true, value).subscribe((data: any) => {
+              this.clientsData = data.pageItems;
+            });
+          }
+        });
+    }
+  }
+
+  clientSelected(clientDetails: any) {
+    this.accountOptions = [];
+    this.loanService.guarantorAccountResource(this.loanId, clientDetails.id).subscribe((response: any) => {
+      this.accountOptions = response.accountLinkingOptions;
+    });
+  }
+
+  /**
+   * Displays Client name in form control input.
+   * @param {any} client Client data.
+   * @returns {string} Client name if valid otherwise undefined.
+   */
+  displayClient(client: any): string | undefined {
+    return client ? client.displayName : undefined;
+  }
+
+  /** Submits the new guarantor details form */
+  submit() {
+    const newGuarantorFormData = this.newGuarantorForm.value;
+    const locale = this.settingsService.language.code;
+    const dateFormat = this.settingsService.dateFormat;
+
+    const prevdob: Date = this.newGuarantorForm.value.dob;
+    const guarantorTypeId: number = this.newGuarantorForm.value.existingClient
+      ? this.dataObject.guarantorTypeOptions[0].id
+      : this.dataObject.guarantorTypeOptions[2].id;
+    const data = {
+      ...newGuarantorFormData,
+      locale,
+      dateFormat,
+      guarantorTypeId
+    };
+
+    if (this.newGuarantorForm.value.existingClient) {
+      data['entityId'] = this.newGuarantorForm.controls.name.value.id;
+    } else {
+      if (newGuarantorFormData.dob instanceof Date) {
+        data['dob'] = this.dateUtils.formatDate(prevdob, dateFormat);
+      }
+    }
+
+    delete data.existingClient;
+    delete data.name;
+
+    // Remove empty optional fields to avoid API validation errors
+    Object.keys(data).forEach((key) => {
+      if (data[key] === '' || data[key] === null || data[key] === undefined) {
+        delete data[key];
+      }
+    });
+
+    this.loanService.createNewGuarantor(this.loanId, data).subscribe((response: any) => {
+      this.gotoLoanDefaultView();
+    });
+  }
+}

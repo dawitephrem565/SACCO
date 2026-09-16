@@ -1,0 +1,94 @@
+# ============================================================
+# Secrets / environment  — NEVER commit real values
+# ============================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+*.pfx
+id_rsa*
+id_ed25519*
+*.ppk
+.aws/
+aws_credentials
+credentials.json
+
+# ============================================================
+# Logs
+# ============================================================
+*.log
+logs/
+
+# ============================================================
+# Dependencies & build artifacts
+# ============================================================
+node_modules/
+dist/
+out/
+build/
+target/
+.gradle/
+.m2/
+.cache/
+tmp/
+*.class
+
+# ============================================================
+# Docker volumes / database data directories (never commit data)
+# ============================================================
+docker-data/
+volumes/
+data/
+db-data/
+mysql-data/
+postgres-data/
+pg_data/
+
+# ============================================================
+# Database dumps & archives (DATA). Source schema & sanitized
+# seeds are re-included below.
+# ============================================================
+*.sql
+*.dump
+*.bak
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+
+# --- Re-include source schema and sanitized seed data only ---
+!backend/**/*.sql
+!frontend/**/*.sql
+!database/init/*.sh
+!database/init/*.sql
+!database/seed/*.sanitized.sql
+
+# ============================================================
+# OS / editor noise
+# ============================================================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+frontend/proxy.dantel-stack.conf.js
+.claude/scheduled_tasks.lock
+
+# ============================================================
+# Local analysis / client docs — keep on disk, do not publish
+# ============================================================
+NewDocs/
+*.pdf
+
+# Cursor / agent local state
+.cursor/
+agent-transcripts/
+
+# Local handoff / branding notes
+docs/HANDOFF_*
+docs/BRANDING_*
+

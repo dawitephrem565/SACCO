@@ -1,0 +1,17 @@
+{
+  "short_name": "Dantel",
+  "name": "Dantel",
+  "start_url": "/",
+  "scope": "/",
+  "theme_color": "#fff",
+  "background_color": "#fff",
+  "display": "standalone",
+  "description": "Dantel is a web application built on top of the Apache Fineract® platform.",
+  "icons": [
+    {
+      "src": "assets/images/Dantel_logo.jpg",
+      "sizes": "182x184",
+      "type": "image/jpeg"
+    }
+  ]
+}

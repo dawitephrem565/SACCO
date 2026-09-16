@@ -1,0 +1,90 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+.container {
+  padding: 16px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+
+  mat-form-field {
+    width: 280px;
+    max-width: 100%;
+  }
+
+  .hint {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.75;
+    max-width: 420px;
+  }
+}
+
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.tile {
+  mat-card-content {
+    padding: 16px;
+  }
+
+  .tile-value {
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 32px;
+  }
+
+  .tile-label {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-top: 8px;
+  }
+}
+
+.highlight .tile-value {
+  color: #b0752d;
+}
+
+.receivable-table {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.numeric {
+  text-align: right;
+}
+
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  text-align: center;
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .state-icon {
+    font-size: 40px;
+    height: 40px;
+    width: 40px;
+    opacity: 0.5;
+    margin-bottom: 16px;
+  }
+}

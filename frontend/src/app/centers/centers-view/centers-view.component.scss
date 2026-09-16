@@ -1,0 +1,35 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+.account-card {
+  .center-meeting {
+    align-self: flex-end;
+    width: 100%;
+
+    div,
+    ng-template > div {
+      background-color: #0a6aac;
+
+      p {
+        color: white;
+        padding: 0 10px;
+      }
+    }
+  }
+}
+
+.meetingDetails {
+  float: right;
+  margin-right: 10px;
+  border: 1px black solid;
+  padding: 10px;
+}
+
+.make-flex {
+  display: flex;
+}

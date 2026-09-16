@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>{{ 'labels.heading.Reject Loan' | translate }}</h2>
+
+<mat-dialog-content>
+  <p class="loan-meta">
+    {{ data.clientName }} — {{ data.accountNo }}
+  </p>
+  <p class="hint">{{ 'labels.text.Reject loan requires a reason' | translate }}</p>
+
+  <form [formGroup]="form" class="reject-form">
+    <mat-form-field appearance="fill">
+      <mat-label>{{ 'labels.inputs.Rejected On' | translate }}</mat-label>
+      <input matInput [matDatepicker]="rejectedPicker" formControlName="rejectedOnDate" required />
+      <mat-datepicker-toggle matSuffix [for]="rejectedPicker"></mat-datepicker-toggle>
+      <mat-datepicker #rejectedPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>{{ 'labels.inputs.Reason' | translate }}</mat-label>
+      <textarea matInput rows="4" formControlName="note" required></textarea>
+      <mat-error *ngIf="form.controls.note.hasError('required')">
+        {{ 'labels.text.Rejection reason is required' | translate }}
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">{{ 'labels.buttons.Cancel' | translate }}</button>
+  <button mat-raised-button color="warn" type="button" (click)="confirm()" [disabled]="form.invalid">
+    {{ 'labels.buttons.Reject' | translate }}
+  </button>
+</mat-dialog-actions>

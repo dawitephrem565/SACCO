@@ -1,0 +1,145 @@
+<div class="container">
+  <!-- Office filter -->
+  <mat-card class="filter-card m-b-16">
+    <mat-card-content>
+      <mat-form-field appearance="fill" class="office-select">
+        <mat-label>{{ 'labels.inputs.Office' | translate }}</mat-label>
+        <mat-select [formControl]="officeId">
+          <mat-option *ngFor="let office of officeData" [value]="office.id">
+            {{ office.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="state-panel">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p class="m-t-16">{{ 'labels.text.Loading' | translate }}</p>
+  </div>
+
+  <!-- Reports unavailable -->
+  <mat-card *ngIf="!isLoading && loadError" class="state-panel m-b-16">
+    <mat-card-content>
+      <mat-icon class="state-icon">error_outline</mat-icon>
+      <p>{{ 'labels.text.Unable to load dashboard reports' | translate }}</p>
+    </mat-card-content>
+  </mat-card>
+
+  <ng-container *ngIf="!isLoading && !loadError">
+    <!-- Headline figures -->
+    <div class="tile-grid m-b-16">
+      <mat-card *ngFor="let tile of summaryTiles" class="tile">
+        <mat-card-content>
+          <mat-icon class="tile-icon">{{ tile.icon }}</mat-icon>
+          <div class="tile-value">
+            {{ tile.isCurrency ? (tile.value | number: '1.0-2') : tile.value }}
+          </div>
+          <div class="tile-label">{{ tile.labelKey | translate }}</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- No members yet -->
+    <mat-card *ngIf="isEmpty" class="state-panel m-b-16">
+      <mat-card-content>
+        <mat-icon class="state-icon">groups</mat-icon>
+        <p>{{ 'labels.text.No members yet' | translate }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <ng-container *ngIf="!isEmpty">
+      <!-- Demographics -->
+      <div class="chart-grid m-b-16">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>{{ 'labels.heading.Members by Gender' | translate }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-holder">
+              <canvas id="fetan-gender-chart"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>{{ 'labels.heading.Members by Age Band' | translate }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-holder">
+              <canvas id="fetan-age-chart"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Financials by gender -->
+      <div class="chart-grid">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>{{ 'labels.heading.Savings by Gender' | translate }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <table class="breakdown">
+              <tr>
+                <th>{{ 'labels.inputs.Gender' | translate }}</th>
+                <th>{{ 'labels.heading.Members' | translate }}</th>
+                <th class="numeric">{{ 'labels.heading.Total Savings' | translate }}</th>
+              </tr>
+              <tr *ngFor="let row of savingsByGender">
+                <td>{{ row.Gender }}</td>
+                <td>{{ row.Members }}</td>
+                <td class="numeric">{{ row['Total Savings'] | number: '1.0-2' }}</td>
+              </tr>
+            </table>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>{{ 'labels.heading.Shares by Gender' | translate }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <table class="breakdown">
+              <tr>
+                <th>{{ 'labels.inputs.Gender' | translate }}</th>
+                <th>{{ 'labels.heading.Shares' | translate }}</th>
+                <th class="numeric">{{ 'labels.heading.Share Value' | translate }}</th>
+              </tr>
+              <tr *ngFor="let row of sharesByGender">
+                <td>{{ row.Gender }}</td>
+                <td>{{ row['Shares Held'] }}</td>
+                <td class="numeric">{{ row['Share Value'] | number: '1.0-2' }}</td>
+              </tr>
+            </table>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>{{ 'labels.heading.Loans by Gender' | translate }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <table class="breakdown">
+              <tr>
+                <th>{{ 'labels.inputs.Gender' | translate }}</th>
+                <th>{{ 'labels.heading.Borrowers' | translate }}</th>
+                <th class="numeric">{{ 'labels.heading.Outstanding' | translate }}</th>
+              </tr>
+              <tr *ngFor="let row of loansByGender">
+                <td>{{ row.Gender }}</td>
+                <td>{{ row.Borrowers }}</td>
+                <td class="numeric">{{ row['Outstanding Principal'] | number: '1.0-2' }}</td>
+              </tr>
+              <tr *ngIf="loansByGender.length === 0">
+                <td colspan="3" class="empty-row">{{ 'labels.text.No active loans' | translate }}</td>
+              </tr>
+            </table>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

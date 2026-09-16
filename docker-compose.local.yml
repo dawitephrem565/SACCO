@@ -1,0 +1,162 @@
+# ============================================================
+# Mifos / Apache Fineract — LOCAL stack (Docker Compose)
+# ============================================================
+# Mirrors the working EC2 production deployment, retargeted for localhost.
+# Stack: apache/fineract (backend) + postgres:18.3 (db) + openmf/web-app (frontend) + nginx (proxy)
+#
+#   Start:  docker compose -f docker-compose.local.yml up -d
+#   URLs:   Frontend     http://localhost:8080
+#           Backend API  http://localhost:8080/fineract-provider/api/v1
+#           Health       http://localhost:8080/fineract-provider/actuator/health
+#
+# Values come from .env (copy .env.example -> .env; scripts/local-up.sh automates it).
+# By default this runs the official published images. To customize from the bundled
+# source instead, uncomment the `build:` blocks (see notes on the fineract/webapp services).
+# ============================================================
+
+name: mifos-local
+
+services:
+  db:
+    image: postgres:18.3
+    container_name: mifos-local-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      FINERACT_DB_USER: ${FINERACT_DB_USER}
+      FINERACT_DB_PASS: ${FINERACT_DB_PASS}
+      FINERACT_TENANTS_DB_NAME: ${FINERACT_TENANTS_DB_NAME}
+      FINERACT_TENANT_DEFAULT_DB_NAME: ${FINERACT_TENANT_DEFAULT_DB_NAME}
+    volumes:
+      - pg_data:/var/lib/postgresql
+      - ./database/init/01-init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "${POSTGRES_USER}"]
+      timeout: 10s
+      retries: 10
+    networks: [mifos]
+    # SECURITY: no host port published -> the database is reachable only on the internal docker network.
+
+  fineract:
+    image: apache/fineract:latest
+    container_name: mifos-local-fineract
+    restart: unless-stopped
+    user: "1000:1000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FINERACT_NODE_ID: "1"
+      # --- connection pool (non-secret tuning) ---
+      FINERACT_HIKARI_MINIMUM_IDLE: "3"
+      FINERACT_HIKARI_MAXIMUM_POOL_SIZE: "10"
+      FINERACT_HIKARI_IDLE_TIMEOUT: "60000"
+      FINERACT_HIKARI_CONNECTION_TIMEOUT: "20000"
+      FINERACT_HIKARI_TEST_QUERY: "SELECT 1"
+      FINERACT_HIKARI_AUTO_COMMIT: "true"
+      FINERACT_HIKARI_DS_PROPERTIES_CACHE_PREP_STMTS: "true"
+      FINERACT_HIKARI_DS_PROPERTIES_PREP_STMT_CACHE_SIZE: "250"
+      FINERACT_HIKARI_DS_PROPERTIES_PREP_STMT_CACHE_SQL_LIMIT: "2048"
+      FINERACT_HIKARI_DS_PROPERTIES_USE_SERVER_PREP_STMTS: "true"
+      FINERACT_HIKARI_DS_PROPERTIES_USE_LOCAL_SESSION_STATE: "true"
+      FINERACT_HIKARI_DS_PROPERTIES_REWRITE_BATCHED_STATEMENTS: "true"
+      FINERACT_HIKARI_DS_PROPERTIES_CACHE_RESULT_SET_METADATA: "true"
+      FINERACT_HIKARI_DS_PROPERTIES_CACHE_SERVER_CONFIGURATION: "true"
+      FINERACT_HIKARI_DS_PROPERTIES_ELIDE_SET_AUTO_COMMITS: "true"
+      FINERACT_HIKARI_DS_PROPERTIES_MAINTAIN_TIME_STATS: "false"
+      # --- database driver / connection ---
+      FINERACT_HIKARI_DRIVER_SOURCE_CLASS_NAME: org.postgresql.Driver
+      FINERACT_HIKARI_JDBC_URL: jdbc:postgresql://db:5432/fineract_tenants
+      FINERACT_HIKARI_USERNAME: ${FINERACT_DB_USER}
+      FINERACT_HIKARI_PASSWORD: ${FINERACT_DB_PASS}
+      # --- default tenant bootstrap ---
+      FINERACT_DEFAULT_TENANTDB_HOSTNAME: db
+      FINERACT_DEFAULT_TENANTDB_PORT: "5432"
+      FINERACT_DEFAULT_TENANTDB_UID: ${FINERACT_DB_USER}
+      FINERACT_DEFAULT_TENANTDB_PWD: ${FINERACT_DB_PASS}
+      FINERACT_DEFAULT_TENANTDB_IDENTIFIER: default
+      FINERACT_DEFAULT_TENANTDB_NAME: fineract_default
+      FINERACT_DEFAULT_TENANTDB_DESCRIPTION: Default Tenant
+      FINERACT_DEFAULT_TENANTDB_TIMEZONE: UTC
+      FINERACT_DEFAULT_TENANTDB_CONN_PARAMS: ""
+      FINERACT_DEFAULT_MASTER_PASSWORD: ${FINERACT_MASTER_PASSWORD}
+      # --- server / misc ---
+      FINERACT_SERVER_SSL_ENABLED: "true"
+      FINERACT_INSECURE_HTTP_CLIENT: "true"
+      FINERACT_CONTENT_FILESYSTEM_ROOT_FOLDER: /tmp
+      FINERACT_MANAGEMENT_ENDPOINT_WEB_EXPOSURE_INCLUDE: health,info,prometheus
+      FINERACT_MANAGEMENT_METRICS_TAGS_APPLICATION: fineract
+      FINERACT_REMOTE_JOB_MESSAGE_HANDLER_SPRING_EVENTS_ENABLED: "true"
+      SPRING_PROFILES_ACTIVE: test,diagnostics
+      OTEL_SERVICE_NAME: fineract
+      JAVA_TOOL_OPTIONS: "-Xmx1G -XX:MinRAMPercentage=25 -XX:MaxRAMPercentage=80 -XX:TieredStopAtLevel=1 -XX:+UseContainerSupport -XX:+UseStringDeduplication --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.security=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.management/javax.management=ALL-UNNAMED --add-opens=java.naming/javax.naming=ALL-UNNAMED"
+    tmpfs:
+      - /tmp:rw,nosuid,size=256m
+    healthcheck:
+      test: ["CMD", "sh", "-c", "while ! nc -z localhost 8443; do sleep 2; done; echo up"]
+      timeout: 5s
+      retries: 60
+      start_period: 180s
+    networks: [mifos]
+    # OPTIONAL — build the backend from the bundled ./backend source instead of the image.
+    # WARNING: a Fineract Gradle build needs lots of RAM/disk and is slow. Most users keep the image.
+    #   build:
+    #     context: ./backend
+
+  webapp:
+    image: dantel/web-app:local
+    build:
+      context: ./frontend
+    container_name: mifos-local-webapp
+    restart: unless-stopped
+    environment:
+      FINERACT_API_URLS: ${FINERACT_API_BASE}
+      FINERACT_API_URL: ${FINERACT_API_BASE}
+      FINERACT_API_PROVIDER: /fineract-provider/api
+      FINERACT_API_VERSION: /v1
+      FINERACT_PLATFORM_TENANT_IDENTIFIER: default
+      FINERACT_PLATFORM_TENANTS_IDENTIFIER: default
+      MIFOS_DEFAULT_LANGUAGE: en-US
+      MIFOS_SUPPORTED_LANGUAGES: cs-CS,de-DE,en-US,es-MX,fr-FR,it-IT,ko-KO,lt-LT,lv-LV,ne-NE,pt-PT
+      MIFOS_PRELOAD_CLIENTS: "false"
+      MIFOS_DEFAULT_CHAR_DELIMITER: ","
+      MIFOS_DISPLAY_BACKEND_INFO: "true"
+      MIFOS_DISPLAY_TENANT_SELECTOR: "true"
+      MIFOS_WAIT_TIME_FOR_NOTIFICATIONS: "60"
+      MIFOS_WAIT_TIME_FOR_CATCHUP: "30"
+      MIFOS_SESSION_IDLE_TIMEOUT: "300000"
+      MIFOS_MIN_PASSWORD_LENGTH: "12"
+      MIFOS_PRODUCTION_MODE_ENABLE_RBAC: "true"
+      MIFOS_OAUTH_SERVER_ENABLED: "false"
+      MIFOS_OAUTH_SERVER_URL: ""
+      MIFOS_OAUTH_CLIENT_ID: web-app
+      VNEXT_API_URL: ""
+      VNEXT_API_PROVIDER: ""
+      VNEXT_API_VERSION: ""
+      VNEXT_INTERBANK_TRANSFERS: "false"
+    networks: [mifos]
+    # OPTIONAL — build the frontend from the bundled ./frontend source instead of the image:
+    #   build:
+    #     context: ./frontend
+
+  proxy:
+    image: nginx:1.27-alpine
+    container_name: mifos-local-proxy
+    restart: unless-stopped
+    depends_on:
+      - webapp
+      - fineract
+    ports:
+      - "${LOCAL_HTTP_PORT:-8080}:80"
+    volumes:
+      - ./nginx/local.conf:/etc/nginx/conf.d/default.conf:ro
+    networks: [mifos]
+
+volumes:
+  pg_data:
+    name: mifos_local_pg_data
+
+networks:
+  mifos:
+    name: mifos_local_net

@@ -1,0 +1,199 @@
+<div class="container">
+  <mat-card class="m-b-16">
+    <mat-card-header>
+      <mat-card-title>{{ 'labels.heading.Add Member' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="hint">
+        {{ 'labels.text.Add Member stepped form hint' | translate }}
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <div *ngIf="isLoading" class="state-panel">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p class="m-t-16">{{ 'labels.text.Loading' | translate }}</p>
+  </div>
+
+  <mat-card *ngIf="!isLoading && loadError" class="state-panel">
+    <mat-card-content>
+      <p>{{ 'labels.text.Unable to load add member form' | translate }}</p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="!isLoading && !loadError">
+    <mat-card-content>
+      <mat-stepper linear="true" orientation="vertical" #stepper>
+        <mat-step [stepControl]="personalForm">
+          <ng-template matStepLabel>{{ 'labels.heading.Personal Information' | translate }}</ng-template>
+          <form [formGroup]="personalForm" class="step-form">
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'labels.inputs.Office' | translate }}</mat-label>
+              <mat-select formControlName="officeId" required>
+                <mat-option *ngFor="let office of officeOptions" [value]="office.id">{{ office.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="row-2">
+              <mat-form-field appearance="fill">
+                <mat-label>{{ 'labels.inputs.First Name' | translate }}</mat-label>
+                <input matInput formControlName="firstname" required />
+              </mat-form-field>
+              <mat-form-field appearance="fill">
+                <mat-label>{{ 'labels.inputs.Last Name' | translate }}</mat-label>
+                <input matInput formControlName="lastname" required />
+              </mat-form-field>
+            </div>
+
+            <div class="row-2">
+              <mat-form-field appearance="fill">
+                <mat-label>{{ 'labels.inputs.Mobile No' | translate }}</mat-label>
+                <input matInput formControlName="mobileNo" />
+              </mat-form-field>
+              <mat-form-field appearance="fill">
+                <mat-label>{{ 'labels.inputs.Email Address' | translate }}</mat-label>
+                <input matInput formControlName="emailAddress" />
+              </mat-form-field>
+            </div>
+
+            <div class="row-2">
+              <mat-form-field appearance="fill">
+                <mat-label>{{ 'labels.inputs.Gender' | translate }}</mat-label>
+                <mat-select formControlName="genderId">
+                  <mat-option *ngFor="let gender of genderOptions" [value]="gender.id">{{
+                    gender.name || gender.value
+                  }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="fill">
+                <mat-label>{{ 'labels.inputs.Date of Birth' | translate }}</mat-label>
+                <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth" />
+                <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                <mat-datepicker #dobPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+
+            <div class="row-2">
+              <mat-form-field appearance="fill">
+                <mat-label>{{ 'labels.inputs.External Id' | translate }}</mat-label>
+                <input matInput formControlName="externalId" />
+              </mat-form-field>
+              <mat-form-field appearance="fill">
+                <mat-label>{{ 'labels.inputs.Submitted On' | translate }}</mat-label>
+                <input matInput [matDatepicker]="submittedPicker" formControlName="submittedOnDate" required />
+                <mat-datepicker-toggle matSuffix [for]="submittedPicker"></mat-datepicker-toggle>
+                <mat-datepicker #submittedPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+
+            <div class="step-actions">
+              <button mat-raised-button color="primary" matStepperNext [disabled]="personalForm.invalid">
+                {{ 'labels.buttons.Next' | translate }}
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step [stepControl]="depositForm">
+          <ng-template matStepLabel>{{ 'labels.heading.Initial Deposit' | translate }}</ng-template>
+          <form [formGroup]="depositForm" class="step-form">
+            <mat-checkbox formControlName="openSavings">
+              {{ 'labels.text.Open savings and take initial deposit' | translate }}
+            </mat-checkbox>
+
+            <ng-container *ngIf="depositForm.value.openSavings">
+              <mat-form-field appearance="fill">
+                <mat-label>{{ 'labels.inputs.Savings Product' | translate }}</mat-label>
+                <mat-select formControlName="productId" required>
+                  <mat-option *ngFor="let product of savingsProducts" [value]="product.id">{{
+                    product.name
+                  }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <div class="row-2">
+                <mat-form-field appearance="fill">
+                  <mat-label>{{ 'labels.inputs.Amount' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="amount" required />
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>{{ 'labels.inputs.Payment Type' | translate }}</mat-label>
+                  <mat-select formControlName="paymentTypeId" required>
+                    <mat-option *ngFor="let type of paymentTypes" [value]="type.id">{{ type.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </ng-container>
+
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>{{ 'labels.buttons.Back' | translate }}</button>
+              <button
+                mat-raised-button
+                color="primary"
+                matStepperNext
+                [disabled]="depositForm.value.openSavings && depositForm.invalid"
+              >
+                {{ 'labels.buttons.Next' | translate }}
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step>
+          <ng-template matStepLabel>{{ 'labels.heading.Supporting Documents' | translate }}</ng-template>
+          <form [formGroup]="documentForm" class="step-form">
+            <p class="hint">{{ 'labels.text.Document upload is optional' | translate }}</p>
+
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'labels.inputs.Name' | translate }}</mat-label>
+              <input matInput formControlName="name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>{{ 'labels.inputs.Description' | translate }}</mat-label>
+              <textarea matInput rows="2" formControlName="description"></textarea>
+            </mat-form-field>
+
+            <label class="file-label">
+              <span>{{ 'labels.inputs.Select File' | translate }}</span>
+              <input type="file" (change)="onFileSelected($event)" />
+            </label>
+            <p class="file-name" *ngIf="selectedFile">{{ selectedFile.name }}</p>
+
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>{{ 'labels.buttons.Back' | translate }}</button>
+              <button mat-raised-button color="primary" matStepperNext>
+                {{ 'labels.buttons.Next' | translate }}
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step>
+          <ng-template matStepLabel>{{ 'labels.heading.Confirm' | translate }}</ng-template>
+          <div class="step-form">
+            <p>
+              <strong>{{ personalForm.value.firstname }} {{ personalForm.value.lastname }}</strong>
+            </p>
+            <p *ngIf="depositForm.value.openSavings">
+              {{ 'labels.heading.Initial Deposit' | translate }}: {{ depositForm.value.amount | number: '1.0-2' }}
+            </p>
+            <p *ngIf="selectedFile">{{ 'labels.inputs.Select File' | translate }}: {{ selectedFile.name }}</p>
+            <p class="error" *ngIf="submitError">{{ submitError }}</p>
+
+            <div class="step-actions">
+              <button mat-button matStepperPrevious [disabled]="isSubmitting">
+                {{ 'labels.buttons.Back' | translate }}
+              </button>
+              <button mat-raised-button color="primary" (click)="submit()" [disabled]="isSubmitting">
+                <mat-spinner *ngIf="isSubmitting" diameter="20" class="inline-spinner"></mat-spinner>
+                <span *ngIf="!isSubmitting">{{ 'labels.buttons.Submit' | translate }}</span>
+                <span *ngIf="isSubmitting">{{ 'labels.text.Loading' | translate }}</span>
+              </button>
+            </div>
+          </div>
+        </mat-step>
+      </mat-stepper>
+    </mat-card-content>
+  </mat-card>
+</div>

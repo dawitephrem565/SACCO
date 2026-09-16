@@ -1,0 +1,112 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+.container {
+  padding: 16px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: baseline;
+
+  mat-form-field {
+    width: 280px;
+    max-width: 100%;
+  }
+
+  .search-field {
+    flex: 1 1 320px;
+  }
+}
+
+.department-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.contact {
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  &:first-child {
+    padding-top: 8px;
+  }
+}
+
+.contact-name {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.contact-title {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.contact-detail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+
+  .detail-icon {
+    font-size: 16px;
+    height: 16px;
+    width: 16px;
+    opacity: 0.6;
+  }
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.contact-notes {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  text-align: center;
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .state-icon {
+    font-size: 40px;
+    height: 40px;
+    width: 40px;
+    opacity: 0.5;
+    margin-bottom: 16px;
+  }
+}

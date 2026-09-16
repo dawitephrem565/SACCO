@@ -1,0 +1,104 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+/** Angular Imports */
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+
+/** Custom Components */
+
+/** Custom Services */
+import { ClientsService } from '../../clients.service';
+import { AuthenticationService } from 'app/core/authentication/authentication.service';
+import { EntityNotesTabComponent } from '../../../shared/tabs/entity-notes-tab/entity-notes-tab.component';
+import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+
+/**
+ * Notes Tab Component
+ */
+@Component({
+  selector: 'mifosx-notes-tab',
+  templateUrl: './notes-tab.component.html',
+  styleUrls: ['./notes-tab.component.scss'],
+  imports: [
+    ...STANDALONE_SHARED_IMPORTS,
+    EntityNotesTabComponent
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class NotesTabComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private clientsService = inject(ClientsService);
+  private authenticationService = inject(AuthenticationService);
+  private destroyRef = inject(DestroyRef);
+
+  /** Client ID */
+  entityId: string;
+  /** Username */
+  username: string;
+  /** Client Notes */
+  entityNotes: any;
+
+  /**
+   * @param {ActivatedRoute} route Activated Route
+   * @param {ClientsService} clientsService Clients Service
+   * @param {AuthenticationService} authenticationService Authentication Service
+   */
+  constructor() {
+    this.entityId = this.route.parent.snapshot.params['clientId'];
+    this.addNote = this.addNote.bind(this);
+    this.editNote = this.editNote.bind(this);
+    this.deleteNote = this.deleteNote.bind(this);
+  }
+
+  ngOnInit(): void {
+    const credentials = this.authenticationService.getCredentials();
+    this.username = credentials.username;
+    this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data: { clientNotes: any }) => {
+      this.entityNotes = data.clientNotes;
+    });
+  }
+
+  /**
+   * Edits a client note.
+   * @param {string} noteId Note Id
+   * @param {any} noteContent Note Content
+   * @param {number} index Index
+   */
+  editNote(noteId: string, noteContent: any, index: number) {
+    this.clientsService.editClientNote(this.entityId, noteId, noteContent).subscribe(() => {
+      this.entityNotes[index].note = noteContent.note;
+    });
+  }
+
+  /**
+   * Deletes a client note.
+   * @param {string} noteId Note Id
+   * @param {number} index Index
+   */
+  deleteNote(noteId: string, index: number) {
+    this.clientsService.deleteClientNote(this.entityId, noteId).subscribe(() => {
+      this.entityNotes.splice(index, 1);
+    });
+  }
+
+  /**
+   * Creates a client note.
+   */
+  addNote(noteContent: any) {
+    this.clientsService.createClientNote(this.entityId, noteContent).subscribe((response: any) => {
+      this.entityNotes.push({
+        id: response.resourceId,
+        createdByUsername: this.username,
+        createdOn: new Date(),
+        note: noteContent.note
+      });
+    });
+  }
+}

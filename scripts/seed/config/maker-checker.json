@@ -1,0 +1,32 @@
+{
+  "_comment": [
+    "Two-person control (maker-checker) for FETAN's loan committee.",
+    "",
+    "This is the whole of FETAN's loan approval workflow requirement, implemented as",
+    "configuration. No custom backend module and no self-built Fineract image are",
+    "needed, because FETAN confirmed that 'Check' and 'Approve' are the same decision",
+    "made by two different people rather than three separate sign-offs.",
+    "",
+    "How it works:",
+    "  1. An Employee submits the loan            (CREATE_LOAN)",
+    "  2. A committee Maker approves it           (APPROVE_LOAN) → recorded as PENDING",
+    "  3. A committee Checker confirms it         (CHECKER_SUPER_USER) → now APPROVED",
+    "  4. Disbursement repeats the same two steps (DISBURSE_LOAN)",
+    "",
+    "globalConfiguration:",
+    "  maker-checker             master switch — nothing is queued unless this is on",
+    "  enable-same-maker-checker MUST stay false, or one person could check their own",
+    "                            work and two-person control would be defeated"
+  ],
+
+  "globalConfiguration": {
+    "maker-checker": true,
+    "enable-same-maker-checker": false
+  },
+
+  "_permissionsComment": [
+    "Only these actions require a second person. Everything else Fineract ships as",
+    "maker-checkable is turned OFF by the seed step — see maker-checker.mjs."
+  ],
+  "makerCheckerPermissions": ["APPROVE_LOAN", "DISBURSE_LOAN"]
+}

@@ -1,0 +1,76 @@
+{
+  "_comment": [
+    "Staff profiles, cash desks (tellers) and cashiers for FETAN demo / ops bootstrap.",
+    "Staff are organisation records (not app users). Cashiers must reference a staff id.",
+    "linkUser optionally attaches the staff record to an existing app user after roles seed."
+  ],
+  "staff": [
+    {
+      "office": "Addis Ababa Main Branch",
+      "firstname": "Sara",
+      "lastname": "Tadesse",
+      "isLoanOfficer": true,
+      "mobileNo": "+251911000001",
+      "joiningDate": "2020-01-15",
+      "linkUser": "fetan.employee"
+    },
+    {
+      "office": "Addis Ababa Main Branch",
+      "firstname": "Yonas",
+      "lastname": "Kebede",
+      "isLoanOfficer": false,
+      "mobileNo": "+251911000002",
+      "joiningDate": "2020-03-01",
+      "linkUser": "fetan.teller"
+    },
+    {
+      "office": "Head Office",
+      "firstname": "Marta",
+      "lastname": "Assefa",
+      "isLoanOfficer": true,
+      "mobileNo": "+251911000003",
+      "joiningDate": "2019-06-01",
+      "linkUser": "fetan.maker"
+    },
+    {
+      "office": "Bole Branch",
+      "firstname": "Daniel",
+      "lastname": "Hailu",
+      "isLoanOfficer": true,
+      "mobileNo": "+251911000004",
+      "joiningDate": "2021-02-10"
+    }
+  ],
+  "tellers": [
+    {
+      "office": "Addis Ababa Main Branch",
+      "name": "AA Main Cash Desk",
+      "description": "Front-counter cash desk for Addis Ababa Main Branch",
+      "startDate": "2020-01-15",
+      "status": 300,
+      "cashier": {
+        "staffFirstname": "Yonas",
+        "staffLastname": "Kebede",
+        "description": "Primary full-day cashier",
+        "startDate": "2020-01-15",
+        "endDate": "2030-12-31",
+        "isFullDay": true
+      }
+    },
+    {
+      "office": "Bole Branch",
+      "name": "Bole Cash Desk",
+      "description": "Front-counter cash desk for Bole Branch",
+      "startDate": "2021-02-10",
+      "status": 300,
+      "cashier": {
+        "staffFirstname": "Daniel",
+        "staffLastname": "Hailu",
+        "description": "Bole branch cashier",
+        "startDate": "2021-02-10",
+        "endDate": "2030-12-31",
+        "isFullDay": true
+      }
+    }
+  ]
+}

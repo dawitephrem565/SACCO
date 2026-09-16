@@ -1,0 +1,197 @@
+{
+  "_comment": [
+    "FETAN roles and the permissions each one holds.",
+    "",
+    "Two things are achieved here at once:",
+    "  1. Granting what a role needs.",
+    "  2. WITHHOLDING everything else — this is how unused Mifos modules (groups,",
+    "     centres, collection sheets, remittances, investors, surveys) are hidden.",
+    "     The frontend hides what the user lacks permission for, and the backend",
+    "     refuses the call regardless, so nothing is deleted from the codebase.",
+    "",
+    "Permission syntax:",
+    "  \"APPROVE_LOAN\"                  exact permission code",
+    "  \"READ_*\"                        prefix wildcard",
+    "  \"grouping:transaction_savings\"  every permission in a grouping",
+    "",
+    "ALL_FUNCTIONS_READ is reserved for Management and Auditor (oversight / read-all).",
+    "Operational roles get curated READ_* + write permissions so FETAN menus can be",
+    "gated by action (CREATE_CLIENT, APPROVE_LOAN, DISBURSE_LOAN, etc.).",
+    "",
+    "⚠️ IMPORTANT — this version of Fineract has NO per-action checker permissions",
+    "(no APPROVE_LOAN_CHECKER). The ability to check another user's pending action is",
+    "granted by the single special permission CHECKER_SUPER_USER, which allows",
+    "checking ANY pending command, not just loan approvals. Splitting the committee",
+    "into a Maker role and a Checker role is therefore how two-person control is",
+    "enforced — see the note in README.md."
+  ],
+
+  "roles": [
+    {
+      "name": "FETAN Employee",
+      "description": "Front-office staff: onboard members, capture loan applications, take deposits. Cannot approve or disburse.",
+      "permissions": [
+        "ALL_FUNCTIONS_READ",
+        "READ_CLIENT",
+        "READ_LOAN",
+        "READ_SAVINGSACCOUNT",
+        "READ_SHAREACCOUNT",
+        "READ_OFFICE",
+        "READ_STAFF",
+        "READ_CODE",
+        "READ_CODEVALUE",
+        "READ_SAVINGSPRODUCT",
+        "READ_LOANPRODUCT",
+        "READ_SHAREPRODUCT",
+        "READ_CHARGE",
+        "READ_DOCUMENT",
+        "READ_CLIENTIDENTIFIER",
+        "READ_FAMILYMEMBERS",
+        "READ_ADDRESS",
+        "READ_PAYMENTTYPE",
+        "READ_CURRENCY",
+        "READ_DATATABLE",
+        "READ_CONFIGURATION",
+        "READ_WORKINGDAYS",
+        "READ_HOLIDAY",
+        "READ_fetan_contact_directory",
+        "READ_FETAN Contact Directory",
+        "READ_FETAN Member Demographics by Gender",
+        "READ_FETAN Member Demographics by Age Band",
+        "READ_FETAN Total Savings by Gender",
+        "READ_FETAN Total Shares by Gender",
+        "READ_FETAN Total Loans by Gender",
+        "READ_FETAN Membership Summary",
+        "CREATE_fetan_contact_directory",
+        "UPDATE_fetan_contact_directory",
+        "DELETE_fetan_contact_directory",
+        "CREATE_CLIENT",
+        "UPDATE_CLIENT",
+        "ACTIVATE_CLIENT",
+        "CREATE_CLIENTIDENTIFIER",
+        "UPDATE_CLIENTIDENTIFIER",
+        "DELETE_CLIENTIDENTIFIER",
+        "CREATE_CLIENTIMAGE",
+        "CREATE_DOCUMENT",
+        "UPDATE_DOCUMENT",
+        "DELETE_DOCUMENT",
+        "CREATE_CLIENTNOTE",
+        "CREATE_FAMILYMEMBERS",
+        "UPDATE_FAMILYMEMBERS",
+        "CREATE_ADDRESS",
+        "UPDATE_ADDRESS",
+        "CREATE_LOAN",
+        "UPDATE_LOAN",
+        "CREATE_SAVINGSACCOUNT",
+        "UPDATE_SAVINGSACCOUNT",
+        "APPROVE_SAVINGSACCOUNT",
+        "ACTIVATE_SAVINGSACCOUNT",
+        "CREATE_SHAREACCOUNT",
+        "UPDATE_SHAREACCOUNT",
+        "DEPOSIT_SAVINGSACCOUNT",
+        "WITHDRAWAL_SAVINGSACCOUNT",
+        "REPAYMENT_LOAN"
+      ]
+    },
+
+    {
+      "name": "FETAN Loan Committee (Maker)",
+      "description": "Committee member who initiates the approval decision. With maker-checker enabled, this records a PENDING approval that another user must check.",
+      "permissions": [
+        "ALL_FUNCTIONS_READ",
+        "READ_CLIENT",
+        "READ_LOAN",
+        "READ_OFFICE",
+        "READ_STAFF",
+        "READ_LOANPRODUCT",
+        "READ_PAYMENTTYPE",
+        "READ_CONFIGURATION",
+        "READ_WORKINGDAYS",
+        "READ_HOLIDAY",
+        "READ_fetan_contact_directory",
+        "READ_FETAN Contact Directory",
+        "APPROVE_LOAN",
+        "APPROVALUNDO_LOAN",
+        "REJECT_LOAN",
+        "WITHDRAW_LOAN",
+        "DISBURSE_LOAN",
+        "CREATE_LOANNOTE"
+      ]
+    },
+
+    {
+      "name": "FETAN Loan Committee (Checker)",
+      "description": "Committee member who confirms another member's pending decision. The check is what actually applies the approval.",
+      "permissions": [
+        "ALL_FUNCTIONS_READ",
+        "READ_CLIENT",
+        "READ_LOAN",
+        "READ_OFFICE",
+        "READ_MAKERCHECKER",
+        "READ_CONFIGURATION",
+        "READ_WORKINGDAYS",
+        "READ_HOLIDAY",
+        "READ_fetan_contact_directory",
+        "READ_FETAN Contact Directory",
+        "CHECKER_SUPER_USER",
+        "CREATE_LOANNOTE"
+      ]
+    },
+
+    {
+      "name": "FETAN Management",
+      "description": "Oversight: full visibility plus reporting. No transactional authority by default.",
+      "permissions": [
+        "ALL_FUNCTIONS_READ",
+        "REPORTING_SUPER_USER",
+        "CREATE_CLIENTNOTE",
+        "CREATE_LOANNOTE"
+      ]
+    },
+
+    {
+      "name": "FETAN Teller",
+      "description": "Cash desk: drawer management, deposits, withdrawals and repayments.",
+      "permissions": [
+        "ALL_FUNCTIONS_READ",
+        "READ_CLIENT",
+        "READ_SAVINGSACCOUNT",
+        "READ_LOAN",
+        "READ_OFFICE",
+        "READ_STAFF",
+        "READ_PAYMENTTYPE",
+        "READ_CONFIGURATION",
+        "READ_WORKINGDAYS",
+        "READ_HOLIDAY",
+        "READ_fetan_contact_directory",
+        "READ_FETAN Contact Directory",
+        "grouping:cash_mgmt",
+        "DEPOSIT_SAVINGSACCOUNT",
+        "WITHDRAWAL_SAVINGSACCOUNT",
+        "REPAYMENT_LOAN",
+        "UNDOTRANSACTION_SAVINGSACCOUNT"
+      ]
+    },
+
+    {
+      "name": "FETAN Auditor",
+      "description": "Read-only across the whole system, including the audit trail. Cannot change anything.",
+      "permissions": ["ALL_FUNCTIONS_READ", "REPORTING_SUPER_USER"]
+    }
+  ],
+
+  "_usersComment": [
+    "Test users, one per role, for walking the loan chain end to end (Phase 2).",
+    "⚠️ These are DEVELOPMENT credentials for the local stack only. The password is",
+    "set from the SEED_USER_PASSWORD environment variable; users are skipped entirely",
+    "if it is not set, so a production run cannot create them by accident."
+  ],
+  "testUsers": [
+    { "username": "fetan.employee", "firstname": "Test", "lastname": "Employee", "email": "employee@fetan.local", "office": "Addis Ababa Main Branch", "roles": ["FETAN Employee"] },
+    { "username": "fetan.maker", "firstname": "Test", "lastname": "Maker", "email": "maker@fetan.local", "office": "Head Office", "roles": ["FETAN Loan Committee (Maker)"] },
+    { "username": "fetan.checker", "firstname": "Test", "lastname": "Checker", "email": "checker@fetan.local", "office": "Head Office", "roles": ["FETAN Loan Committee (Checker)"] },
+    { "username": "fetan.manager", "firstname": "Test", "lastname": "Manager", "email": "manager@fetan.local", "office": "Head Office", "roles": ["FETAN Management"] },
+    { "username": "fetan.teller", "firstname": "Test", "lastname": "Teller", "email": "teller@fetan.local", "office": "Addis Ababa Main Branch", "roles": ["FETAN Teller"] },
+    { "username": "fetan.auditor", "firstname": "Test", "lastname": "Auditor", "email": "auditor@fetan.local", "office": "Head Office", "roles": ["FETAN Auditor"] }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "_comment": [
+    "Dropdown values for the member (client) forms.",
+    "Fineract ships the code CATEGORIES (Gender, Customer Identifier, ...) but most",
+    "arrive with no values, so the dropdowns render empty. We only add values.",
+    "Categories are matched by exact name — see GET /codes for the full list."
+  ],
+  "codeValues": {
+    "Gender": ["Male", "Female"],
+
+    "Customer Identifier": [
+      "National ID",
+      "Kebele ID",
+      "Passport",
+      "Driving Licence",
+      "Employee ID"
+    ],
+
+    "Customer Documents": [
+      "ID Copy",
+      "Photograph",
+      "Proof of Residence",
+      "Salary Statement",
+      "Employment Letter"
+    ],
+
+    "ClientType": ["Individual", "Employee", "Pensioner"],
+
+    "ClientClassification": ["Regular Member", "Founding Member", "Staff Member"],
+
+    "ClientClosureReason": [
+      "Left the SACCO voluntarily",
+      "Transferred to another SACCO",
+      "Deceased",
+      "Duplicate record"
+    ],
+
+    "ClientRejectReason": ["Incomplete KYC", "Ineligible", "Duplicate application"],
+
+    "ClientWithdrawReason": ["Withdrawn by applicant", "No longer interested"],
+
+    "LoanCollateral": ["Salary Guarantee", "Group Guarantee", "Property", "Vehicle", "Fixed Deposit"],
+
+    "LoanPurpose": [
+      "Business / Working Capital",
+      "Agriculture",
+      "Education",
+      "Medical",
+      "Home Improvement",
+      "Emergency",
+      "Asset Purchase"
+    ],
+
+    "WriteOffReasons": ["Uncollectible", "Deceased member", "Absconded"],
+
+    "LoanRescheduleReason": ["Loss of income", "Illness", "Business downturn"],
+
+    "MARITAL STATUS": ["Single", "Married", "Divorced", "Widowed"],
+
+    "PROFESSION": ["Government Employee", "Private Employee", "Self Employed", "Farmer", "Trader", "Student", "Retired"],
+
+    "RELATIONSHIP": ["Spouse", "Child", "Parent", "Sibling", "Other Relative"],
+
+    "GuarantorRelationship": ["Spouse", "Relative", "Colleague", "Friend"],
+
+    "ADDRESS_TYPE": ["Permanent Address", "Residential Address", "Work Address"],
+
+    "SavingsAccountBlockReasons": ["Suspected fraud", "Court order", "Member request"]
+  }
+}

@@ -1,0 +1,37 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container">
+  <nav mat-tab-nav-bar class="navigation-tabs" [tabPanel]="tabPanel">
+    <a
+      mat-tab-link
+      [routerLink]="['./general']"
+      routerLinkActive
+      #general="routerLinkActive"
+      [active]="general.isActive"
+    >
+      {{ 'labels.heading.General' | translate }}
+    </a>
+    @for (entityDatatable of entityDatatables; track entityDatatable) {
+      <a
+        mat-tab-link
+        [routerLink]="['./datatables', entityDatatable.registeredTableName]"
+        routerLinkActive
+        #datatable="routerLinkActive"
+        [active]="datatable.isActive"
+        *mifosxHasPermission="'READ_' + entityDatatable.registeredTableName"
+      >
+        {{ entityDatatable.registeredTableName }}
+      </a>
+    }
+  </nav>
+
+  <mat-tab-nav-panel #tabPanel>
+    <router-outlet></router-outlet>
+  </mat-tab-nav-panel>
+</div>

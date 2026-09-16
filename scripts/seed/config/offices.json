@@ -1,0 +1,22 @@
+{
+  "_comment": [
+    "FETAN branches. 'Head Office' already exists in a fresh Fineract (id 1) and is",
+    "treated as the parent of everything below, so it is not listed here.",
+    "PLACEHOLDER DATA — replace with FETAN's real branch list and opening dates.",
+    "openingDate must not be earlier than the parent office's opening date (1 Jan 2009)."
+  ],
+  "offices": [
+    {
+      "name": "Addis Ababa Main Branch",
+      "parentName": "Head Office",
+      "openingDate": "2020-01-01",
+      "externalId": "FETAN-BR-001"
+    },
+    {
+      "name": "Bole Branch",
+      "parentName": "Head Office",
+      "openingDate": "2020-01-01",
+      "externalId": "FETAN-BR-002"
+    }
+  ]
+}

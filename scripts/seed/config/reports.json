@@ -1,0 +1,119 @@
+{
+  "_comment": [
+    "FETAN's Executive Dashboard figures, defined as Fineract reports.",
+    "",
+    "A report in Fineract is a row in stretchy_report holding a SQL query, exposed at",
+    "GET /runreports/<name>. Defining them here rather than through the admin UI is",
+    "what keeps them in version control: a report created by clicking exists in one",
+    "database only and is absent from every other environment.",
+    "",
+    "Requirement source: FETAN SRS §1.1 Executive Dashboard —",
+    "  'Demographics Breakdown: visual charts categorizing total members by gender",
+    "   and age brackets (<18, 18-35, >35)'",
+    "  'Financial Summaries: aggregated real-time metrics split by gender for Total",
+    "   Savings, Total Shares, and Total Loans'",
+    "",
+    "No schema changes are needed: m_client already stores gender_cv_id and",
+    "date_of_birth. Every query is read-only.",
+    "",
+    "⚠️ Age bands are <18 / 18-35 / >35 taken literally from the SRS. Confirm the",
+    "   boundaries with FETAN (open question Q8) — note 18-35 and >35 leave 35",
+    "   itself in the middle band.",
+    "",
+    "Parameters: OfficeIdSelectOne is a Fineract-provided parameter that renders an",
+    "office picker. ${officeId} is substituted at run time; the hierarchy match makes",
+    "a parent office include all of its branches."
+  ],
+
+  "reports": [
+    {
+      "reportName": "FETAN Member Demographics by Gender",
+      "reportType": "Table",
+      "reportCategory": "Client",
+      "description": "Total members split by gender. Dashboard: demographics chart.",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select coalesce(cv.code_value, 'Not specified') as \"Gender\", count(c.id) as \"Members\" from m_client c join m_office o on o.id = c.office_id left join m_code_value cv on cv.id = c.gender_cv_id where o.hierarchy like concat((select ounder.hierarchy from m_office ounder where ounder.id = ${officeId}), '%') and c.status_enum = 300 group by coalesce(cv.code_value, 'Not specified') order by 2 desc"
+    },
+
+    {
+      "reportName": "FETAN Member Demographics by Age Band",
+      "reportType": "Table",
+      "reportCategory": "Client",
+      "description": "Active members grouped into the age bands in FETAN's SRS (<18, 18-35, >35).",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select band as \"Age Band\", count(*) as \"Members\" from (select case when c.date_of_birth is null then 'Unknown' when extract(year from age(current_date, c.date_of_birth)) < 18 then 'Under 18' when extract(year from age(current_date, c.date_of_birth)) <= 35 then '18 to 35' else 'Over 35' end as band from m_client c join m_office o on o.id = c.office_id where o.hierarchy like concat((select ounder.hierarchy from m_office ounder where ounder.id = ${officeId}), '%') and c.status_enum = 300) banded group by band order by case band when 'Under 18' then 1 when '18 to 35' then 2 when 'Over 35' then 3 else 4 end"
+    },
+
+    {
+      "reportName": "FETAN Total Savings by Gender",
+      "reportType": "Table",
+      "reportCategory": "Savings",
+      "description": "Total savings balance held, split by member gender. Dashboard: financial summary.",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select coalesce(cv.code_value, 'Not specified') as \"Gender\", count(distinct c.id) as \"Members\", coalesce(sum(sa.account_balance_derived), 0) as \"Total Savings\" from m_savings_account sa join m_client c on c.id = sa.client_id join m_office o on o.id = c.office_id left join m_code_value cv on cv.id = c.gender_cv_id where o.hierarchy like concat((select ounder.hierarchy from m_office ounder where ounder.id = ${officeId}), '%') and sa.status_enum = 300 group by coalesce(cv.code_value, 'Not specified') order by 3 desc"
+    },
+
+    {
+      "reportName": "FETAN Total Shares by Gender",
+      "reportType": "Table",
+      "reportCategory": "Savings",
+      "description": "Share capital held, split by member gender. Dashboard: financial summary.",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select coalesce(cv.code_value, 'Not specified') as \"Gender\", count(distinct c.id) as \"Members\", coalesce(sum(sa.total_approved_shares), 0) as \"Shares Held\", coalesce(sum(sa.total_approved_shares * sp.unit_price), 0) as \"Share Value\" from m_share_account sa join m_client c on c.id = sa.client_id join m_office o on o.id = c.office_id join m_share_product sp on sp.id = sa.product_id left join m_code_value cv on cv.id = c.gender_cv_id where o.hierarchy like concat((select ounder.hierarchy from m_office ounder where ounder.id = ${officeId}), '%') and sa.status_enum = 300 group by coalesce(cv.code_value, 'Not specified') order by 4 desc"
+    },
+
+    {
+      "reportName": "FETAN Total Loans by Gender",
+      "reportType": "Table",
+      "reportCategory": "Loan",
+      "description": "Outstanding loan principal, split by member gender. Dashboard: financial summary.",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select coalesce(cv.code_value, 'Not specified') as \"Gender\", count(distinct c.id) as \"Borrowers\", count(l.id) as \"Loans\", coalesce(sum(l.principal_outstanding_derived), 0) as \"Outstanding Principal\" from m_loan l join m_client c on c.id = l.client_id join m_office o on o.id = c.office_id left join m_code_value cv on cv.id = c.gender_cv_id where o.hierarchy like concat((select ounder.hierarchy from m_office ounder where ounder.id = ${officeId}), '%') and l.loan_status_id = 300 group by coalesce(cv.code_value, 'Not specified') order by 4 desc"
+    },
+
+    {
+      "reportName": "FETAN Contact Directory",
+      "reportType": "Table",
+      "reportCategory": "Client",
+      "description": "Internal contact directory (SRS §2). Reads the fetan_contact_directory datatable and resolves department and branch names, so the whole directory comes back in one call.",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select cd.\"Department\" as \"Department\", c.\"Contact Name\" as \"Contact\", c.\"Job Title\" as \"Job Title\", o.name as \"Branch\", c.\"Phone\" as \"Phone\", c.\"Email\" as \"Email\", c.\"Notes\" as \"Notes\" from fetan_contact_directory c join m_office o on o.id = c.office_id join (select cv.id as id, cv.code_value as \"Department\", cv.order_position as pos from m_code_value cv join m_code cc on cc.id = cv.code_id where cc.code_name = 'FETANDepartment') cd on cd.id = c.\"FETANDepartment_cd_Department\" where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') order by cd.pos, o.hierarchy, c.\"Contact Name\""
+    },
+
+    {
+      "reportName": "FETAN Membership Summary",
+      "reportType": "Table",
+      "reportCategory": "Client",
+      "description": "Headline totals for the dashboard: members, savings, shares and loans in one row.",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select (select count(*) from m_client c join m_office o on o.id = c.office_id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') and c.status_enum = 300) as \"Active Members\", (select count(*) from m_client c join m_office o on o.id = c.office_id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') and c.status_enum = 100) as \"Pending Members\", (select coalesce(sum(sa.account_balance_derived), 0) from m_savings_account sa join m_client c on c.id = sa.client_id join m_office o on o.id = c.office_id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') and sa.status_enum = 300) as \"Total Savings\", (select coalesce(sum(sh.total_approved_shares * sp.unit_price), 0) from m_share_account sh join m_client c on c.id = sh.client_id join m_office o on o.id = c.office_id join m_share_product sp on sp.id = sh.product_id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') and sh.status_enum = 300) as \"Total Share Value\", (select coalesce(sum(l.principal_outstanding_derived), 0) from m_loan l join m_client c on c.id = l.client_id join m_office o on o.id = c.office_id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') and l.loan_status_id = 300) as \"Loans Outstanding\", (select count(*) from m_loan l join m_client c on c.id = l.client_id join m_office o on o.id = c.office_id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') and l.loan_status_id = 100) as \"Loans Awaiting Approval\""
+    },
+
+    {
+      "reportName": "FETAN Loan Receivable Summary",
+      "reportType": "Table",
+      "reportCategory": "Loan",
+      "description": "Loan receivable headline: principal collected vs still owed on active loans. FETAN detail §4 Loan Receivable.",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select count(l.id) as \"Active Loans\", coalesce(sum(l.principal_disbursed_derived), 0) as \"Principal Disbursed\", coalesce(sum(l.principal_repaid_derived), 0) as \"Collected\", coalesce(sum(l.principal_outstanding_derived), 0) as \"Uncollected\", coalesce(sum(l.interest_repaid_derived), 0) as \"Interest Collected\", coalesce(sum(l.total_outstanding_derived), 0) as \"Total Outstanding\" from m_loan l join m_client c on c.id = l.client_id join m_office o on o.id = c.office_id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') and l.loan_status_id = 300"
+    },
+
+    {
+      "reportName": "FETAN Loan Receivable by Member",
+      "reportType": "Table",
+      "reportCategory": "Loan",
+      "description": "Per-member receivable breakdown for active loans: collected vs uncollected principal.",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select c.display_name as \"Member\", l.account_no as \"Account\", lp.name as \"Product\", coalesce(l.principal_disbursed_derived, 0) as \"Disbursed\", coalesce(l.principal_repaid_derived, 0) as \"Collected\", coalesce(l.principal_outstanding_derived, 0) as \"Uncollected\", coalesce(l.total_outstanding_derived, 0) as \"Total Outstanding\" from m_loan l join m_client c on c.id = l.client_id join m_office o on o.id = c.office_id join m_product_loan lp on lp.id = l.product_id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') and l.loan_status_id = 300 order by l.principal_outstanding_derived desc, c.display_name"
+    }
+  ]
+}

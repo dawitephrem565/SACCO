@@ -1,0 +1,73 @@
+{
+  "_comment": [
+    "Fees and penalties. PLACEHOLDER AMOUNTS — FETAN must confirm every figure.",
+    "",
+    "appliesTo:    Loan | Savings | Client | Shares",
+    "timeType:     when the charge is raised (see options per appliesTo in the UI)",
+    "calculation:  Flat | % Amount | % Loan Amount + Interest | % Interest",
+    "penalty:      true marks it as a penalty rather than a fee",
+    "paymentMode:  Loan charges only — 'Regular' (cash) or 'Account transfer'",
+    "feeOnMonthDay: required for Annual/Monthly fees — the billing date, format 'dd MMM'",
+    "",
+    "Amounts are in the primary currency from currencies.json (ETB)."
+  ],
+  "charges": [
+    {
+      "name": "Membership Entrance Fee",
+      "appliesTo": "Client",
+      "timeType": "Specified due date",
+      "calculation": "Flat",
+      "amount": 100,
+      "penalty": false,
+      "active": true
+    },
+    {
+      "name": "Loan Processing Fee",
+      "appliesTo": "Loan",
+      "timeType": "Disbursement",
+      "calculation": "% Amount",
+      "amount": 1,
+      "penalty": false,
+      "paymentMode": "Regular",
+      "active": true
+    },
+    {
+      "name": "Loan Late Repayment Penalty",
+      "appliesTo": "Loan",
+      "timeType": "Overdue Fees",
+      "calculation": "Flat",
+      "amount": 50,
+      "penalty": true,
+      "paymentMode": "Regular",
+      "active": true
+    },
+    {
+      "name": "Savings Withdrawal Fee",
+      "appliesTo": "Savings",
+      "timeType": "Withdrawal Fee",
+      "calculation": "Flat",
+      "amount": 10,
+      "penalty": false,
+      "active": true
+    },
+    {
+      "name": "Savings Annual Maintenance Fee",
+      "appliesTo": "Savings",
+      "timeType": "Annual Fee",
+      "calculation": "Flat",
+      "amount": 25,
+      "penalty": false,
+      "feeOnMonthDay": "01 Jan",
+      "active": true
+    },
+    {
+      "name": "Share Purchase Fee",
+      "appliesTo": "Shares",
+      "timeType": "Share Purchase",
+      "calculation": "Flat",
+      "amount": 20,
+      "penalty": false,
+      "active": true
+    }
+  ]
+}

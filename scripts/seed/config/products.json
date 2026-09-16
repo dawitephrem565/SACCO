@@ -1,0 +1,132 @@
+{
+  "_comment": [
+    "FETAN's savings, share and loan products.",
+    "⚠️ PLACEHOLDER RATES, TERMS AND AMOUNTS — FETAN must confirm every figure.",
+    "",
+    "All products use CASH accounting, so each maps to real accounts from",
+    "chart-of-accounts.json by glCode. Cash accounting records entries when money",
+    "actually moves; accrual would recognise interest as it is earned. Which FETAN",
+    "needs is an accounting decision, not a technical one.",
+    "",
+    "Currency comes from currencies.json (ETB) and cannot be changed after creation."
+  ],
+
+  "savingsProducts": [
+    {
+      "name": "FETAN Compulsory Savings",
+      "shortName": "CSAV",
+      "description": "Mandatory monthly savings required of every FETAN member.",
+      "nominalAnnualInterestRate": 7,
+      "minRequiredOpeningBalance": 100,
+      "charges": ["Savings Annual Maintenance Fee"],
+      "accounting": {
+        "savingsReferenceAccountId": "11100",
+        "overdraftPortfolioControlId": "12500",
+        "incomeFromInterestId": "41300",
+        "writeOffAccountId": "53200",
+        "savingsControlAccountId": "21200",
+        "interestOnSavingsAccountId": "51100",
+        "incomeFromFeeAccountId": "42400",
+        "incomeFromPenaltyAccountId": "42300",
+        "transfersInSuspenseAccountId": "22500"
+      }
+    },
+    {
+      "name": "FETAN Voluntary Savings",
+      "shortName": "VSAV",
+      "description": "Optional savings account members may deposit into and withdraw from.",
+      "nominalAnnualInterestRate": 5,
+      "minRequiredOpeningBalance": 50,
+      "charges": ["Savings Withdrawal Fee"],
+      "accounting": {
+        "savingsReferenceAccountId": "11100",
+        "overdraftPortfolioControlId": "12500",
+        "incomeFromInterestId": "41300",
+        "writeOffAccountId": "53200",
+        "savingsControlAccountId": "21100",
+        "interestOnSavingsAccountId": "51100",
+        "incomeFromFeeAccountId": "42400",
+        "incomeFromPenaltyAccountId": "42300",
+        "transfersInSuspenseAccountId": "22500"
+      }
+    }
+  ],
+
+  "shareProducts": [
+    {
+      "name": "FETAN Member Shares",
+      "shortName": "SHR",
+      "description": "Member share capital. Dividends are declared periodically.",
+      "totalShares": 1000000,
+      "sharesIssued": 1000000,
+      "unitPrice": 100,
+      "minimumShares": 10,
+      "nominalShares": 10,
+      "maximumShares": 10000,
+      "charges": ["Share Purchase Fee"],
+      "accounting": {
+        "shareReferenceId": "11100",
+        "shareSuspenseId": "22600",
+        "shareEquityId": "31000",
+        "incomeFromFeeAccountId": "42400"
+      }
+    }
+  ],
+
+  "loanProducts": [
+    {
+      "name": "FETAN Member Loan",
+      "shortName": "MLN",
+      "description": "General purpose member loan repaid in equal monthly instalments.",
+      "principal": 20000,
+      "minPrincipal": 1000,
+      "maxPrincipal": 200000,
+      "numberOfRepayments": 12,
+      "minNumberOfRepayments": 3,
+      "maxNumberOfRepayments": 48,
+      "interestRatePerPeriod": 12,
+      "minInterestRatePerPeriod": 8,
+      "maxInterestRatePerPeriod": 18,
+      "charges": ["Loan Processing Fee", "Loan Late Repayment Penalty"],
+      "accounting": {
+        "fundSourceAccountId": "11100",
+        "loanPortfolioAccountId": "12100",
+        "interestOnLoanAccountId": "41100",
+        "incomeFromFeeAccountId": "42100",
+        "incomeFromPenaltyAccountId": "42300",
+        "incomeFromRecoveryAccountId": "44000",
+        "writeOffAccountId": "53200",
+        "transfersInSuspenseAccountId": "13100",
+        "overpaymentLiabilityAccountId": "22300",
+        "goodwillCreditAccountId": "53200"
+      }
+    },
+    {
+      "name": "FETAN Emergency Loan",
+      "shortName": "ELN",
+      "description": "Short-term small loan for urgent member needs.",
+      "principal": 5000,
+      "minPrincipal": 500,
+      "maxPrincipal": 20000,
+      "numberOfRepayments": 6,
+      "minNumberOfRepayments": 1,
+      "maxNumberOfRepayments": 12,
+      "interestRatePerPeriod": 10,
+      "minInterestRatePerPeriod": 8,
+      "maxInterestRatePerPeriod": 15,
+      "charges": ["Loan Late Repayment Penalty"],
+      "accounting": {
+        "fundSourceAccountId": "11100",
+        "loanPortfolioAccountId": "12100",
+        "interestOnLoanAccountId": "41100",
+        "incomeFromFeeAccountId": "42100",
+        "incomeFromPenaltyAccountId": "42300",
+        "incomeFromRecoveryAccountId": "44000",
+        "writeOffAccountId": "53200",
+        "transfersInSuspenseAccountId": "13100",
+        "overpaymentLiabilityAccountId": "22300",
+        "goodwillCreditAccountId": "53200"
+      }
+    }
+  ]
+}

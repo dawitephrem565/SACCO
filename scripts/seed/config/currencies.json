@@ -1,0 +1,13 @@
+{
+  "_comment": [
+    "Currencies FETAN can transact in. A stock Fineract tenant is configured for USD",
+    "only, so this must be set before any product is created: a product's currency is",
+    "chosen at creation and cannot be changed afterwards.",
+    "",
+    "'primary' is the currency used as the default for products seeded by this tool.",
+    "USD is retained only so that existing demo/report data does not break; it can be",
+    "dropped once FETAN confirms it is not needed."
+  ],
+  "primary": "ETB",
+  "enabled": ["ETB", "USD"]
+}
