@@ -54,10 +54,20 @@ const ADDITIONS = {
     'Receivable by Member': 'Receivable by Member',
     Member: 'Member',
     Disbursed: 'Disbursed',
-    'Total Outstanding': 'Total Outstanding'
+    'Total Outstanding': 'Total Outstanding',
+    'Last Activity': 'Last Activity',
+    Sold: 'Sold',
+    'Ready for Sale': 'Ready for Sale',
+    Promised: 'Promised',
+    'Sold Value': 'Sold Value',
+    'Shares by Member': 'Shares by Member',
+    'Approved Shares': 'Approved Shares',
+    'Pending Shares': 'Pending Shares'
   },
   menus: {
     'Add Member': 'Add Member',
+    Members: 'Members',
+    Shares: 'Shares',
     'Manage Contacts': 'Manage Contacts',
     'Contact Directory': 'Contact Directory',
     'Loan Requests': 'Loan Requests',
@@ -67,6 +77,8 @@ const ADDITIONS = {
   },
   tooltips: {
     'Add Member': 'FETAN stepped member onboarding',
+    Members: 'Member directory with active / dormant filters',
+    Shares: 'Share inventory: Sold, Ready, Promised',
     'Manage Contacts': 'Add or edit contacts on an office',
     'Contact Directory': 'FETAN internal contact directory',
     'Loan Requests': 'Submitted loan applications',
@@ -78,7 +90,14 @@ const ADDITIONS = {
     Search: 'Search',
     Reason: 'Reason',
     'Select File': 'Select file',
-    'Rejected On': 'Rejected On'
+    'Rejected On': 'Rejected On',
+    All: 'All',
+    Active: 'Active',
+    Dormant: 'Dormant',
+    Pending: 'Pending',
+    Closed: 'Closed',
+    Month: 'Month',
+    Year: 'Year'
   },
   text: {
     'FETAN Dashboard': 'FETAN Dashboard',
@@ -115,7 +134,17 @@ const ADDITIONS = {
     'Collected is principal repaid; Uncollected is principal still owed on active loans':
       'Collected = principal repaid. Uncollected = principal still owed on active loans.',
     'Unable to load loan receivable': 'Unable to load loan receivable figures.',
-    'No active loans with receivable balances': 'No active loans with receivable balances.'
+    'No active loans with receivable balances': 'No active loans with receivable balances.',
+    'Member list filter hint':
+      'Filter by branch, status (Active / Dormant), and the month / year the member was activated.',
+    'Unable to load member list':
+      'Unable to load the member list. Check that the FETAN Member List report has been seeded.',
+    'No members match filters': 'No members match the selected filters.',
+    'Share status definitions':
+      'Sold = active holdings. Promised = pending applications. Ready = authorized shares still available.',
+    'Unable to load share reports':
+      'Unable to load share reports. Check that the FETAN share report definitions have been seeded.',
+    'No share accounts yet': 'No share accounts have been opened yet.'
   },
   buttons: {
     Reject: 'Reject'

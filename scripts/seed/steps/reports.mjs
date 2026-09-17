@@ -45,6 +45,26 @@ export async function seedReports(api, config) {
       }
     });
 
+    // Keep SQL in sync when the report already exists (idempotent re-seed after edits).
+    // Do not resend reportParameters — Fineract tries to insert them again and hits
+    // report_parameter_unique.
+    if (!result.created && result.id) {
+      try {
+        await api.put(`/reports/${result.id}`, {
+          reportName: report.reportName,
+          reportType: report.reportType,
+          reportCategory: report.reportCategory,
+          reportSubType: report.reportSubType ?? undefined,
+          description: report.description,
+          reportSql: report.reportSql,
+          useReport: true
+        });
+        log.info(`Report "${report.reportName}" — SQL refreshed (id ${result.id})`);
+      } catch (err) {
+        log.warn(`Report "${report.reportName}" — could not refresh SQL: ${err.message}`);
+      }
+    }
+
     idsByName.set(report.reportName, result.id);
   }
 

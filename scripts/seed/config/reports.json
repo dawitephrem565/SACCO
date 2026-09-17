@@ -114,6 +114,36 @@
       "reportSubType": null,
       "parameters": ["OfficeIdSelectOne"],
       "reportSql": "select c.display_name as \"Member\", l.account_no as \"Account\", lp.name as \"Product\", coalesce(l.principal_disbursed_derived, 0) as \"Disbursed\", coalesce(l.principal_repaid_derived, 0) as \"Collected\", coalesce(l.principal_outstanding_derived, 0) as \"Uncollected\", coalesce(l.total_outstanding_derived, 0) as \"Total Outstanding\" from m_loan l join m_client c on c.id = l.client_id join m_office o on o.id = c.office_id join m_product_loan lp on lp.id = l.product_id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') and l.loan_status_id = 300 order by l.principal_outstanding_derived desc, c.display_name"
+    },
+
+    {
+      "reportName": "FETAN Member List",
+      "reportType": "Table",
+      "reportCategory": "Client",
+      "description": "Member directory with Active/Dormant flags. Dormant = active client with no savings/loan/share transaction in the last 90 days.",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select c.id as \"Client Id\", c.display_name as \"Member\", c.account_no as \"Account\", o.name as \"Branch\", case when c.status_enum = 100 then 'Pending' when c.status_enum = 300 and coalesce(act.last_activity, c.activation_date, c.submittedon_date) >= (current_date - interval '90 days') then 'Active' when c.status_enum = 300 then 'Dormant' when c.status_enum in (600, 700, 800) then 'Closed' else 'Other' end as \"Status\", to_char(c.activation_date, 'YYYY-MM-DD') as \"Activated\", to_char(c.submittedon_date, 'YYYY-MM-DD') as \"Submitted\", extract(month from coalesce(c.activation_date, c.submittedon_date))::int as \"Month\", extract(year from coalesce(c.activation_date, c.submittedon_date))::int as \"Year\", to_char(coalesce(act.last_activity, c.activation_date, c.submittedon_date), 'YYYY-MM-DD') as \"Last Activity\" from m_client c join m_office o on o.id = c.office_id left join (select client_id, max(txn_date) as last_activity from (select sa.client_id as client_id, sat.transaction_date as txn_date from m_savings_account_transaction sat join m_savings_account sa on sa.id = sat.savings_account_id where sat.is_reversed = false union all select l.client_id, lt.transaction_date from m_loan_transaction lt join m_loan l on l.id = lt.loan_id where lt.is_reversed = false union all select sha.client_id, shat.transaction_date from m_share_account_transactions shat join m_share_account sha on sha.id = shat.account_id) u group by client_id) act on act.client_id = c.id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') order by c.display_name"
+    },
+
+    {
+      "reportName": "FETAN Share Inventory",
+      "reportType": "Table",
+      "reportCategory": "Client",
+      "description": "Share capital inventory: Sold (active holdings), Promised (pending applications), Ready (authorized minus sold minus promised).",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select sp.name as \"Product\", sp.total_shares as \"Authorized\", coalesce((select sum(sa.total_approved_shares) from m_share_account sa join m_client c on c.id = sa.client_id join m_office o on o.id = c.office_id where sa.product_id = sp.id and sa.status_enum = 300 and o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%')), 0) as \"Sold\", coalesce((select sum(case when sa.status_enum = 100 then coalesce(sa.total_pending_shares, 0) when sa.status_enum = 200 then coalesce(sa.total_approved_shares, sa.total_pending_shares, 0) else 0 end) from m_share_account sa join m_client c on c.id = sa.client_id join m_office o on o.id = c.office_id where sa.product_id = sp.id and sa.status_enum in (100, 200) and o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%')), 0) as \"Promised\", sp.total_shares - coalesce((select sum(sa.total_approved_shares) from m_share_account sa join m_client c on c.id = sa.client_id join m_office o on o.id = c.office_id where sa.product_id = sp.id and sa.status_enum = 300 and o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%')), 0) - coalesce((select sum(case when sa.status_enum = 100 then coalesce(sa.total_pending_shares, 0) when sa.status_enum = 200 then coalesce(sa.total_approved_shares, sa.total_pending_shares, 0) else 0 end) from m_share_account sa join m_client c on c.id = sa.client_id join m_office o on o.id = c.office_id where sa.product_id = sp.id and sa.status_enum in (100, 200) and o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%')), 0) as \"Ready\", coalesce((select sum(sa.total_approved_shares * sp.unit_price) from m_share_account sa join m_client c on c.id = sa.client_id join m_office o on o.id = c.office_id where sa.product_id = sp.id and sa.status_enum = 300 and o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%')), 0) as \"Sold Value\" from m_share_product sp where sp.name = 'FETAN Member Shares'"
+    },
+
+    {
+      "reportName": "FETAN Shares by Member",
+      "reportType": "Table",
+      "reportCategory": "Client",
+      "description": "Per-member share accounts with FETAN status labels: Promised (pending), Sold (active), Rejected/Closed.",
+      "reportSubType": null,
+      "parameters": ["OfficeIdSelectOne"],
+      "reportSql": "select c.display_name as \"Member\", sa.account_no as \"Account\", sp.name as \"Product\", case when sa.status_enum in (100, 200) then 'Promised' when sa.status_enum = 300 then 'Sold' when sa.status_enum = 500 then 'Rejected' when sa.status_enum = 600 then 'Closed' else 'Other' end as \"Status\", coalesce(sa.total_approved_shares, 0) as \"Approved Shares\", coalesce(sa.total_pending_shares, 0) as \"Pending Shares\", coalesce(sa.total_approved_shares * sp.unit_price, 0) as \"Value\" from m_share_account sa join m_client c on c.id = sa.client_id join m_office o on o.id = c.office_id join m_share_product sp on sp.id = sa.product_id where o.hierarchy like concat((select h.hierarchy from m_office h where h.id = ${officeId}), '%') order by case sa.status_enum when 100 then 1 when 200 then 2 when 300 then 3 else 4 end, c.display_name"
     }
   ]
 }

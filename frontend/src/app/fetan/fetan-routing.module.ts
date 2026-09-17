@@ -19,6 +19,8 @@ import { FetanContactsComponent } from './contacts/fetan-contacts.component';
 import { FetanLoanQueueComponent } from './loans/fetan-loan-queue.component';
 import { FetanLoanReceivableComponent } from './loans/fetan-loan-receivable.component';
 import { FetanAddMemberComponent } from './members/fetan-add-member.component';
+import { FetanMemberListComponent } from './members/fetan-member-list.component';
+import { FetanSharesComponent } from './shares/fetan-shares.component';
 
 /** Custom Resolvers */
 import { OfficesResolver } from '../accounting/common-resolvers/offices.resolver';
@@ -52,12 +54,36 @@ const routes: Routes = [
           }
         },
         {
+          path: 'members',
+          component: FetanMemberListComponent,
+          data: {
+            title: 'Members',
+            breadcrumb: 'Members',
+            routeParamBreadcrumb: false
+          },
+          resolve: {
+            offices: OfficesResolver
+          }
+        },
+        {
           path: 'members/create',
           component: FetanAddMemberComponent,
           data: {
             title: 'Add Member',
             breadcrumb: 'Add Member',
             routeParamBreadcrumb: false
+          }
+        },
+        {
+          path: 'shares',
+          component: FetanSharesComponent,
+          data: {
+            title: 'Shares',
+            breadcrumb: 'Shares',
+            routeParamBreadcrumb: false
+          },
+          resolve: {
+            offices: OfficesResolver
           }
         },
         {

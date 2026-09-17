@@ -20,6 +20,8 @@ import { FetanContactsComponent } from './contacts/fetan-contacts.component';
 import { FetanLoanQueueComponent } from './loans/fetan-loan-queue.component';
 import { FetanLoanReceivableComponent } from './loans/fetan-loan-receivable.component';
 import { FetanAddMemberComponent } from './members/fetan-add-member.component';
+import { FetanMemberListComponent } from './members/fetan-member-list.component';
+import { FetanSharesComponent } from './shares/fetan-shares.component';
 import { FetanRejectLoanDialogComponent } from './loans/fetan-reject-loan-dialog.component';
 
 /**
@@ -38,6 +40,8 @@ import { FetanRejectLoanDialogComponent } from './loans/fetan-reject-loan-dialog
     FetanLoanQueueComponent,
     FetanLoanReceivableComponent,
     FetanAddMemberComponent,
+    FetanMemberListComponent,
+    FetanSharesComponent,
     FetanRejectLoanDialogComponent
   ]
 })

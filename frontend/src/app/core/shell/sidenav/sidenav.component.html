@@ -108,6 +108,19 @@
           <a matLine>{{ 'labels.menus.Manage Contacts' | translate }}</a>
         </mat-list-item>
         <mat-list-item
+          [routerLink]="['/fetan/members']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Members' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="['READ_CLIENT', 'REPORTING_SUPER_USER']"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="users" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Members' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
           [routerLink]="['/fetan/members/create']"
           [matTooltipPosition]="tooltipPosition"
           matTooltip="{{ 'tooltips.Add Member' | translate }}"
@@ -119,6 +132,19 @@
             <fa-icon icon="user-plus" size="sm"></fa-icon>
           </mat-icon>
           <a matLine>{{ 'labels.menus.Add Member' | translate }}</a>
+        </mat-list-item>
+        <mat-list-item
+          [routerLink]="['/fetan/shares']"
+          [matTooltipPosition]="tooltipPosition"
+          matTooltip="{{ 'tooltips.Shares' | translate }}"
+          routerLinkActive="active-menu"
+          [routerLinkActiveOptions]="{ exact: false }"
+          *mifosxHasPermission="['READ_SHAREACCOUNT', 'REPORTING_SUPER_USER']"
+        >
+          <mat-icon matListIcon>
+            <fa-icon icon="coins" size="sm"></fa-icon>
+          </mat-icon>
+          <a matLine>{{ 'labels.menus.Shares' | translate }}</a>
         </mat-list-item>
         <mat-list-item
           [routerLink]="['/fetan/loans/requests']"

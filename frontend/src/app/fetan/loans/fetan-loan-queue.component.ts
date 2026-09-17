@@ -36,6 +36,7 @@ import {
   FetanRejectLoanDialogComponent,
   FetanRejectLoanDialogResult
 } from './fetan-reject-loan-dialog.component';
+import { fetanLoanStatusClass, fetanLoanStatusLabel } from './fetan-loan-status';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 
 /** Route data keys for each queue screen. */
@@ -113,6 +114,14 @@ export class FetanLoanQueueComponent implements OnInit {
   /** Reject is only valid on submitted (pending approval) loans. */
   canReject(loan: any): boolean {
     return this.queue !== 'disbursement' && loan.status?.pendingApproval === true;
+  }
+
+  statusLabel(loan: any): string {
+    return fetanLoanStatusLabel(loan?.status);
+  }
+
+  statusClass(loan: any): string {
+    return fetanLoanStatusClass(this.statusLabel(loan));
   }
 
   rejectLoan(loan: any): void {

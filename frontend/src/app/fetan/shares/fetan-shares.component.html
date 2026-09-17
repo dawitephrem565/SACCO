@@ -1,0 +1,84 @@
+<div class="container">
+  <mat-card class="m-b-16">
+    <mat-card-header>
+      <mat-card-title>{{ 'labels.heading.Shares' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="hint">{{ 'labels.text.Share status definitions' | translate }}</p>
+      <mat-form-field appearance="fill">
+        <mat-label>{{ 'labels.inputs.Office' | translate }}</mat-label>
+        <mat-select [formControl]="officeId">
+          <mat-option *ngFor="let office of officeData" [value]="office.id">{{ office.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+  <div *ngIf="isLoading" class="state-panel">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <mat-card *ngIf="!isLoading && loadError" class="state-panel">
+    <mat-card-content>
+      <p>{{ 'labels.text.Unable to load share reports' | translate }}</p>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="kpi-row" *ngIf="!isLoading && !loadError && inventory">
+    <mat-card class="kpi">
+      <div class="kpi-label">{{ 'labels.heading.Sold' | translate }}</div>
+      <div class="kpi-value">{{ inventory.Sold | number: '1.0-0' }}</div>
+    </mat-card>
+    <mat-card class="kpi">
+      <div class="kpi-label">{{ 'labels.heading.Ready for Sale' | translate }}</div>
+      <div class="kpi-value">{{ inventory.Ready | number: '1.0-0' }}</div>
+    </mat-card>
+    <mat-card class="kpi">
+      <div class="kpi-label">{{ 'labels.heading.Promised' | translate }}</div>
+      <div class="kpi-value">{{ inventory.Promised | number: '1.0-0' }}</div>
+    </mat-card>
+    <mat-card class="kpi">
+      <div class="kpi-label">{{ 'labels.heading.Sold Value' | translate }}</div>
+      <div class="kpi-value">{{ inventory['Sold Value'] | number: '1.0-2' }}</div>
+    </mat-card>
+  </div>
+
+  <mat-card *ngIf="!isLoading && !loadError">
+    <mat-card-header>
+      <mat-card-title>{{ 'labels.heading.Shares by Member' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p *ngIf="members.length === 0">{{ 'labels.text.No share accounts yet' | translate }}</p>
+      <table mat-table [dataSource]="members" class="share-table" *ngIf="members.length > 0">
+        <ng-container matColumnDef="member">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.heading.Member' | translate }}</th>
+          <td mat-cell *matCellDef="let row">{{ row.Member }}</td>
+        </ng-container>
+        <ng-container matColumnDef="account">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.heading.Account No' | translate }}</th>
+          <td mat-cell *matCellDef="let row">{{ row.Account }}</td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.heading.Status' | translate }}</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-chip" [ngClass]="statusClass(row.Status)">{{ row.Status }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="approved">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.heading.Approved Shares' | translate }}</th>
+          <td mat-cell *matCellDef="let row" class="numeric">{{ row['Approved Shares'] | number: '1.0-0' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="pending">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.heading.Pending Shares' | translate }}</th>
+          <td mat-cell *matCellDef="let row" class="numeric">{{ row['Pending Shares'] | number: '1.0-0' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="value">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.heading.Share Value' | translate }}</th>
+          <td mat-cell *matCellDef="let row" class="numeric">{{ row.Value | number: '1.0-2' }}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="memberColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: memberColumns"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

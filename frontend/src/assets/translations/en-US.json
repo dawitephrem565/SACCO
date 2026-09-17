@@ -1125,6 +1125,14 @@
       "NotEqual": "Not equal"
     },
     "heading": {
+      "Last Activity": "Last Activity",
+      "Sold": "Sold",
+      "Ready for Sale": "Ready for Sale",
+      "Promised": "Promised",
+      "Sold Value": "Sold Value",
+      "Shares by Member": "Shares by Member",
+      "Approved Shares": "Approved Shares",
+      "Pending Shares": "Pending Shares",
       "Add Member": "Add Member",
       "Initial Deposit": "Initial Deposit",
       "Supporting Documents": "Supporting Documents",
@@ -1628,6 +1636,11 @@
       "Pause Timeline": "Pause Timeline"
     },
     "inputs": {
+      "Dormant": "Dormant",
+      "Pending": "Pending",
+      "Closed": "Closed",
+      "Month": "Month",
+      "Year": "Year",
       "Select File": "Select file",
       "Search": "Search",
       "# Remittance": "# Remittance",
@@ -3215,6 +3228,8 @@
       "Working with Code": "Working with Code"
     },
     "menus": {
+      "Members": "Members",
+      "Shares": "Shares",
       "Manage Contacts": "Manage Contacts",
       "Add Member": "Add Member",
       "Loan Receivable": "Loan Receivable",
@@ -3412,6 +3427,12 @@
       "the Transaction Type": "the Transaction Type"
     },
     "text": {
+      "Member list filter hint": "Filter by branch, status (Active / Dormant), and the month / year the member was activated.",
+      "Unable to load member list": "Unable to load the member list. Check that the FETAN Member List report has been seeded.",
+      "No members match filters": "No members match the selected filters.",
+      "Share status definitions": "Sold = active holdings. Promised = pending applications. Ready = authorized shares still available.",
+      "Unable to load share reports": "Unable to load share reports. Check that the FETAN share report definitions have been seeded.",
+      "No share accounts yet": "No share accounts have been opened yet.",
       "Add Member": "Add Member",
       "Add Member stepped form hint": "One FETAN flow: personal details, optional initial deposit, and supporting documents.",
       "Open savings and take initial deposit": "Open savings and take initial deposit",
@@ -4660,6 +4681,8 @@
   },
   "not_found_subtitle": "Oops.. Looks like this page doesn't exist.",
   "tooltips": {
+    "Members": "Member directory with active / dormant filters",
+    "Shares": "Share inventory: Sold, Ready, Promised",
     "Manage Contacts": "Add or edit contacts on an office",
     "Add Member": "FETAN stepped member onboarding",
     "Loan Receivable": "Collected vs uncollected loan principal",

@@ -35,8 +35,11 @@ export class FetanReportService {
    * An office filter matches on hierarchy, so a parent office includes its branches.
    * A report with no matching rows returns null rather than an empty array.
    */
-  run<T = any>(reportName: string, officeId: number): Observable<T[]> {
-    const params = new HttpParams().set('R_officeId', officeId.toString()).set('genericResultSet', 'false');
+  run<T = any>(reportName: string, officeId: number, extra: Record<string, string | number> = {}): Observable<T[]> {
+    let params = new HttpParams().set('R_officeId', officeId.toString()).set('genericResultSet', 'false');
+    for (const [key, value] of Object.entries(extra)) {
+      params = params.set(key.startsWith('R_') ? key : `R_${key}`, String(value));
+    }
     return this.http.get<T[]>(`/runreports/${encodeURIComponent(reportName)}`, { params });
   }
 }

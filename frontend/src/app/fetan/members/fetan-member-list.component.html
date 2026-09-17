@@ -1,0 +1,104 @@
+<div class="container">
+  <mat-card class="m-b-16">
+    <mat-card-header>
+      <mat-card-title>{{ 'labels.heading.Members' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="hint">{{ 'labels.text.Member list filter hint' | translate }}</p>
+      <div class="filters">
+        <mat-form-field appearance="fill">
+          <mat-label>{{ 'labels.inputs.Office' | translate }}</mat-label>
+          <mat-select [formControl]="officeId">
+            <mat-option *ngFor="let office of officeData" [value]="office.id">{{ office.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>{{ 'labels.inputs.Status' | translate }}</mat-label>
+          <mat-select [formControl]="statusFilter">
+            <mat-option value="all">{{ 'labels.inputs.All' | translate }}</mat-option>
+            <mat-option value="Active">{{ 'labels.inputs.Active' | translate }}</mat-option>
+            <mat-option value="Dormant">{{ 'labels.inputs.Dormant' | translate }}</mat-option>
+            <mat-option value="Pending">{{ 'labels.inputs.Pending' | translate }}</mat-option>
+            <mat-option value="Closed">{{ 'labels.inputs.Closed' | translate }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>{{ 'labels.inputs.Month' | translate }}</mat-label>
+          <mat-select [formControl]="monthFilter">
+            <mat-option value="all">{{ 'labels.inputs.All' | translate }}</mat-option>
+            <mat-option *ngFor="let m of months" [value]="m">{{ m }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>{{ 'labels.inputs.Year' | translate }}</mat-label>
+          <mat-select [formControl]="yearFilter">
+            <mat-option value="all">{{ 'labels.inputs.All' | translate }}</mat-option>
+            <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <a mat-stroked-button color="primary" [routerLink]="['/fetan/members/create']">
+          {{ 'labels.menus.Add Member' | translate }}
+        </a>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div *ngIf="isLoading" class="state-panel">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <mat-card *ngIf="!isLoading && loadError" class="state-panel">
+    <mat-card-content>
+      <p>{{ 'labels.text.Unable to load member list' | translate }}</p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="!isLoading && !loadError && filtered.length === 0" class="state-panel">
+    <mat-card-content>
+      <p>{{ 'labels.text.No members match filters' | translate }}</p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="!isLoading && !loadError && filtered.length > 0">
+    <mat-card-content>
+      <table mat-table [dataSource]="filtered" class="member-table">
+        <ng-container matColumnDef="member">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.heading.Member' | translate }}</th>
+          <td mat-cell *matCellDef="let row">{{ row.Member }}</td>
+        </ng-container>
+        <ng-container matColumnDef="account">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.heading.Account No' | translate }}</th>
+          <td mat-cell *matCellDef="let row">{{ row.Account }}</td>
+        </ng-container>
+        <ng-container matColumnDef="branch">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Office' | translate }}</th>
+          <td mat-cell *matCellDef="let row">{{ row.Branch }}</td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.heading.Status' | translate }}</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-chip" [ngClass]="statusClass(row.Status)">{{ row.Status }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="activated">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Activation Date' | translate }}</th>
+          <td mat-cell *matCellDef="let row">{{ row.Activated || '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="lastActivity">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.heading.Last Activity' | translate }}</th>
+          <td mat-cell *matCellDef="let row">{{ row['Last Activity'] || '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            <a mat-button color="primary" [routerLink]="['/clients', row['Client Id'], 'general']">
+              {{ 'labels.buttons.View' | translate }}
+            </a>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

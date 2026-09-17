@@ -33,6 +33,34 @@
   margin-bottom: 12px;
 }
 
+.status-chip {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-requested {
+  background: #e3f2fd;
+  color: #0d47a1;
+}
+
+.status-pending {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.status-dispensed {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.status-failed {
+  background: #ffebee;
+  color: #b71c1c;
+}
+
 .state-panel {
   display: flex;
   flex-direction: column;
